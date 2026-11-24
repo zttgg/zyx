@@ -209,6 +209,63 @@
         .lesson-card:hover .card-link {
             letter-spacing: 1px;
         }
+
+        /* 含录屏入口的卡片：主体区可点，底部链接并排 */
+        .zyx1029_card_main {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+        }
+        .zyx1029_card_links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-top: 24px;
+        }
+        .zyx1029_card_links .card-link {
+            margin-top: 0;
+        }
+
+        /* ========== 课堂目录分组标题 ========== */
+        .zyx1029_group_head {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(99, 102, 241, 0.14);
+        }
+        .zyx1029_group_head:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        .zyx1029_group_num {
+            font-family: "SF Mono", Consolas, monospace;
+            font-size: 11px;
+            letter-spacing: .12em;
+            color: var(--accent);
+        }
+        .zyx1029_group_head h3 {
+            margin: 0;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .zyx1029_group_en {
+            font-family: "SF Mono", Consolas, monospace;
+            font-size: 10px;
+            letter-spacing: .16em;
+            color: var(--muted);
+        }
+        .zyx1029_group_count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--muted);
+        }
         .upcoming {
             background: transparent;
             border-style: dashed;
@@ -285,6 +342,9 @@
             .section-heading, .footer { align-items: flex-start; flex-direction: column; }
             .prompt-section { gap: 20px; padding: 28px; }
             .hero { padding: 40px 24px; }
+            .zyx1029_group_head { margin-top: 16px; padding-top: 14px; gap: 8px; }
+            .zyx1029_group_head h3 { font-size: 18px; }
+            .zyx1029_group_count { width: 100%; margin-left: 0; }
         }
     </style>
 </head>
@@ -303,9 +363,15 @@
             <section id="lessons" aria-labelledby="lessons-title">
                 <div class="section-heading">
                     <h2 id="lessons-title">课堂目录</h2>
-                    <p class="section-note">已完成 27 个模块 · 持续更新中</p>
+                    <p class="section-note">已完成 17 个模块 · 按作业批次排列</p>
                 </div>
                 <div class="lesson-grid">
+                    <div class="zyx1029_group_head">
+                        <span class="zyx1029_group_num">01</span>
+                        <h3>第一次作业</h3>
+                        <span class="zyx1029_group_en">ASSIGNMENT 01</span>
+                        <span class="zyx1029_group_count">01–06 · 6 个练习</span>
+                    </div>
                     <a class='lesson-card' href='zyx.html'>
                         <div>
                             <span class="lesson-number">01</span>
@@ -330,9 +396,17 @@
                         </div>
                         <span class="card-link">进入练习 →</span>
                     </a>
-                    <a class='lesson-card' href='1029.html'>
+                    <a class='lesson-card' href='zyx1029_poems.html'>
                         <div>
                             <span class="lesson-number">04</span>
+                            <h3>上图下文·诗词卡片</h3>
+                            <p>上图下文扩展：诗词卡片数据由本地服务器返回，JS 动态渲染，图片与文字不再写死在 HTML 里。</p>
+                        </div>
+                        <span class="card-link">进入练习 →</span>
+                    </a>
+                    <a class='lesson-card' href='1029.html'>
+                        <div>
+                            <span class="lesson-number">05</span>
                             <h3>网页整体布局</h3>
                             <p>使用 header、nav、main、aside 与 footer 组织网页整体结构。</p>
                         </div>
@@ -340,15 +414,21 @@
                     </a>
                     <a class='lesson-card' href='total029.html'>
                         <div>
-                            <span class="lesson-number">05</span>
+                            <span class="lesson-number">06</span>
                             <h3>网页整体布局课后作业</h3>
                             <p>Flex两栏布局、子绝父相、overflow裁切、transform缩放动画、奇数卡片特殊效果，附带回到顶部功能。</p>
                         </div>
                         <span class="card-link">进入练习 →</span>
                     </a>
+                    <div class="zyx1029_group_head">
+                        <span class="zyx1029_group_num">02</span>
+                        <h3>第二次作业</h3>
+                        <span class="zyx1029_group_en">ASSIGNMENT 02</span>
+                        <span class="zyx1029_group_count">07–11 · 5 个练习</span>
+                    </div>
                     <a class='lesson-card' href='css3029.HTML'>
                         <div>
-                            <span class="lesson-number">06</span>
+                            <span class="lesson-number">07</span>
                             <h3>CSS3 选择器 + animation</h3>
                             <p>练习结构选择器、伪类与动画，结合 hover、transform、box-shadow 与 keyframes 制作动态卡片效果。</p>
                         </div>
@@ -356,7 +436,7 @@
                     </a>
                     <a class='lesson-card' href='Grid029.html'>
                         <div>
-                            <span class="lesson-number">07</span>
+                            <span class="lesson-number">08</span>
                             <h3>Grid 网格布局</h3>
                             <p>练习 CSS Grid 布局、列模板、区域划分与响应式栅格组合。</p>
                         </div>
@@ -364,7 +444,7 @@
                     </a>
                     <a class='lesson-card' href='svg029.html'>
                         <div>
-                            <span class="lesson-number">08</span>
+                            <span class="lesson-number">09</span>
                             <h3>SVG 图标</h3>
                             <p>使用 SVG 进行图形绘制与图标样式设计，练习可缩放矢量图的创意表达。</p>
                         </div>
@@ -372,155 +452,113 @@
                     </a>
                     <a class='lesson-card' href='dataTyp029.html'>
                         <div>
-                            <span class="lesson-number">09</span>
+                            <span class="lesson-number">10</span>
                             <h3>JS 数据类型</h3>
                             <p>练习 JavaScript 基础数据类型（字符串、数字、布尔、数组、对象等）的定义与使用。</p>
                         </div>
                         <span class="card-link">进入练习 →</span>
                     </a>
-                    <a class='lesson-card' href='tab-news.html'>
-                        <div>
-                            <span class="lesson-number">10</span>
-                            <h3>Tab 选项卡（新闻）</h3>
-                            <p>可复用选项卡组件：国内/省内/国际/最热新闻切换，事件监听 + 清除选中状态。</p>
+                    <div class='lesson-card'>
+                        <a class='zyx1029_card_main' href='tab-news.html'>
+                            <div>
+                                <span class="lesson-number">11</span>
+                                <h3>Tab 选项卡（新闻 / 影视）</h3>
+                                <p>同一套 Tab 组件的两次练习：新闻四分类切换、影视排行榜分类切换，事件监听与选中状态逻辑一致，仅主题不同。</p>
+                            </div>
+                        </a>
+                        <div class='zyx1029_card_links'>
+                            <a class='card-link' href='tab-news.html'>新闻版 →</a>
+                            <a class='card-link' href='indexzhaoyuxin1029.html'>影视版 →</a>
                         </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='indexzhaoyuxin1029.html'>
-                        <div>
-                            <span class="lesson-number">11</span>
-                            <h3>Tab 选项卡（影视排行榜）</h3>
-                            <p>每日/每周/每月/全部影视 Top10 排行榜切换，还原课堂案例样式。</p>
+                    </div>
+                    <div class="zyx1029_group_head">
+                        <span class="zyx1029_group_num">03</span>
+                        <h3>第三次作业</h3>
+                        <span class="zyx1029_group_en">ASSIGNMENT 03</span>
+                        <span class="zyx1029_group_count">12–13 · 2 个练习</span>
+                    </div>
+                    <div class='lesson-card'>
+                        <a class='zyx1029_card_main' href='iconfont-1.html'>
+                            <div>
+                                <span class="lesson-number">12</span>
+                                <h3>图标库展示（Font Awesome / Lucide）</h3>
+                                <p>同一套图标画廊的两种方案：Font Awesome 字体图标与 Lucide SVG 图标，对比引入方式与渲染效果。</p>
+                            </div>
+                        </a>
+                        <div class='zyx1029_card_links'>
+                            <a class='card-link' href='iconfont-1.html'>字体图标版 →</a>
+                            <a class='card-link' href='iconfont-2.html'>SVG 版 →</a>
                         </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='iconfont-1.html'>
-                        <div>
-                            <span class="lesson-number">12</span>
-                            <h3>图标字体 · Font Awesome</h3>
-                            <p>Font Awesome 字体图标画廊，字体图标使用方式。</p>
+                    </div>
+                    <div class='lesson-card'>
+                        <a class='zyx1029_card_main' href='iconfont-4.html'>
+                            <div>
+                                <span class="lesson-number">13</span>
+                                <h3>移动端底部导航（RemixIcon 字体 / SVG）</h3>
+                                <p>同一套底部导航的两种实现：RemixIcon 字体图标与 SVG 精灵图，均含数字徽章、红点与选中态切换。</p>
+                            </div>
+                        </a>
+                        <div class='zyx1029_card_links'>
+                            <a class='card-link' href='iconfont-3.html'>字体版 →</a>
+                            <a class='card-link' href='iconfont-4.html'>SVG 版 →</a>
                         </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='iconfont-2.html'>
-                        <div>
-                            <span class="lesson-number">13</span>
-                            <h3>图标 · Lucide（SVG）</h3>
-                            <p>Lucide 图标库画廊，SVG 方式引入与渲染图标。</p>
+                    </div>
+                    <div class="zyx1029_group_head">
+                        <span class="zyx1029_group_num">04</span>
+                        <h3>第四次作业</h3>
+                        <span class="zyx1029_group_en">ASSIGNMENT 04</span>
+                        <span class="zyx1029_group_count">14–15 · 2 个练习</span>
+                    </div>
+                    <div class='lesson-card'>
+                        <a class='zyx1029_card_main' href='swiper-task.html'>
+                            <div>
+                                <span class="lesson-number">14</span>
+                                <h3>Swiper 轮播系列（4 个任务）</h3>
+                                <p>课堂四大任务打底，再进阶到提示词工程、creative 仿写与 keyboard 超纲加分，四页连贯递进。</p>
+                            </div>
+                        </a>
+                        <div class='zyx1029_card_links'>
+                            <a class='card-link' href='swiper-task.html'>课堂任务 →</a>
+                            <a class='card-link' href='zyx1029_task1_cube.html'>提示词工程 →</a>
+                            <a class='card-link' href='zyx1029_task2_creative.html'>creative 仿写 →</a>
+                            <a class='card-link' href='zyx1029_task3_keyboard.html'>超纲加分 →</a>
                         </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='iconfont-3.html'>
-                        <div>
-                            <span class="lesson-number">14</span>
-                            <h3>图标 · RemixIcon（字体）</h3>
-                            <p>RemixIcon 字体图标实现移动端底部导航，含数字徽章与红点。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='iconfont-4.html'>
-                        <div>
-                            <span class="lesson-number">15</span>
-                            <h3>图标 · RemixIcon（SVG）</h3>
-                            <p>RemixIcon SVG 精灵图实现移动端底部导航，含数字徽章与红点。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='swiper-task.html'>
-                        <div>
-                            <span class="lesson-number">16</span>
-                            <h3>Swiper 轮播组件</h3>
-                            <p>Swiper 四大课堂任务：可拖动、圆点+箭头、自动播放、六种效果切换。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='zyx1029_task1_cube.html'>
-                        <div>
-                            <span class="lesson-number">17</span>
-                            <h3>Swiper 提示词工程</h3>
-                            <p>任务一：两轮提示词对比，让 AI 生成 loop + cube + 3.2 秒自动播放 + 可点击圆点配置，附✗错/✓对实机演示。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='zyx1029_task2_creative.html'>
-                        <div>
-                            <span class="lesson-number">18</span>
-                            <h3>Swiper creative 仿写</h3>
-                            <p>任务二：用 AI 自学第 7 种切换效果，实现「creative 电影墙」并附答辩回答。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='zyx1029_task3_keyboard.html'>
-                        <div>
-                            <span class="lesson-number">19</span>
-                            <h3>Swiper 超纲加分项</h3>
-                            <p>任务三：新增爱达·魔都号展品 + keyboard 键盘控制，附答辩四连问回答。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
+                    </div>
                     <a class='lesson-card' href='24001011029zhaoyuxin_mobile-touch-lesson.html'>
                         <div>
-                            <span class="lesson-number">20</span>
+                            <span class="lesson-number">15</span>
                             <h3>移动端触摸实验</h3>
                             <p>触摸事件四大实验：事件探针、滑动方向识别、长按/双击、双指缩放，需手机或设备模式操作。</p>
                         </div>
                         <span class="card-link">进入练习 →</span>
                     </a>
-                    <a class='lesson-card' href='24001011029zhaoyuxin_mobile-gesture.html'>
-                        <div>
-                            <span class="lesson-number">21</span>
-                            <h3>手势卡片·中华美食</h3>
-                            <p>任务二：4 道美食卡片左右滑动切换，阈值防误触、冷却防跳张、pan-y 保留纵向滚动、0.3s 过渡。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='24001011029zhaoyuxin_mobile-zoom.html'>
-                        <div>
-                            <span class="lesson-number">22</span>
-                            <h3>图片查看器·双指缩放</h3>
-                            <p>任务三：双指缩放 1~4 倍以两指中点为基准不跳变、双击 1x/2x 切换、放大后拖动、1x 不可拖出、旋转保状态。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='24001011029zhaoyuxin_mobile-sensor.html'>
-                        <div>
-                            <span class="lesson-number">23</span>
-                            <h3>摇一摇彩蛋</h3>
-                            <p>任务四：devicemotion 合成加速度阈值判摇、1.5s 冷却只触发一次、iOS 按钮授权、无传感器降级按钮。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
-                    <a class='lesson-card' href='24001011029zhaoyuxin_mobile-detective.html'>
-                        <div>
-                            <span class="lesson-number">24</span>
-                            <h3>事件侦探·观察记录</h3>
-                            <p>任务一：5 种操作的事件顺序记录表、三问解答（move 次数/距离、click 先后、touchcancel 后果）+ 手指轨迹草图。</p>
-                        </div>
-                        <span class="card-link">进入练习 →</span>
-                    </a>
+                    <div class="zyx1029_group_head">
+                        <span class="zyx1029_group_num">05</span>
+                        <h3>第五次作业</h3>
+                        <span class="zyx1029_group_en">ASSIGNMENT 05</span>
+                        <span class="zyx1029_group_count">16 · 1 个练习</span>
+                    </div>
                     <a class='lesson-card' href='24001011029zhaoyuxin_Mobile%20Homework.html'>
                         <div>
-                            <span class="lesson-number">25</span>
+                            <span class="lesson-number">16</span>
                             <h3>移动端作业·提交总览</h3>
                             <p>四关作业汇总：验收点对照表、390×844 真实运行截图、踩坑记录、AI 提示词记录、答辩 5 问与自评。</p>
                         </div>
                         <span class="card-link">进入练习 →</span>
                     </a>
-                    <a class='lesson-card' href='zyx1029_shots/mobile-zoom-demo.mp4'>
+                    <div class="zyx1029_group_head">
+                        <span class="zyx1029_group_num">06</span>
+                        <h3>第六次作业</h3>
+                        <span class="zyx1029_group_en">ASSIGNMENT 06</span>
+                        <span class="zyx1029_group_count">17 · 1 个练习</span>
+                    </div>
+                    <a class='lesson-card' href='zyx1029_llm_practice.html'>
                         <div>
-                            <span class="lesson-number">26</span>
-                            <h3>任务三·实机演示录屏</h3>
-                            <p>iPhone 实拍：双指缩放 1×~4×、双击在 1×/2× 间切换、放大后单指拖动查看细节，时长 11 秒。</p>
+                            <span class="lesson-number">17</span>
+                            <h3>LLM 实践操作痕迹</h3>
+                            <p>四个大模型能力留档：AI 客服服务商切换、知识库上传与检索验证、图像识别、语音识别，附操作截图与验证要点。</p>
                         </div>
-                        <span class="card-link">观看录屏 →</span>
-                    </a>
-                    <a class='lesson-card' href='zyx1029_shots/mobile-sensor-demo.mp4'>
-                        <div>
-                            <span class="lesson-number">27</span>
-                            <h3>任务四·实机演示录屏</h3>
-                            <p>iPhone 实拍：摇一摇手机随机抽出今日菜谱，一次摇动只触发一次（1.5s 冷却），时长 15 秒。</p>
-                        </div>
-                        <span class="card-link">观看录屏 →</span>
+                        <span class="card-link">查看留痕 →</span>
                     </a>
                 </div>
             </section>

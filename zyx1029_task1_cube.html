@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<!--
+  文件名称：zyx1029_task1_cube.html
+  作者：赵雨欣
+  建立时间：2026-11-11 00:30:00（2026-11-11 01:10 按双栏两轮对比版式重做）
+  使用模型：GLM-5.3-FlashX
+  功能名称及简介：任务一「Swiper 提示词工程」交付页 ——
+                  两轮 AI 产出并排对比：第 1 轮提示词笼统，AI 给的配置缺 disableOnInteraction，
+                  手动操作后自动轮播会停；第 2 轮逐条列清需求后补全。
+                  每轮下方各配一个实机演示轮播（loop + cube + 3.2 秒自动翻页 + 圆点分页器）。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务一 · Swiper 提示词工程 · 赵雨欣 24001011029</title>
+<!-- 引用本地 Swiper 组件库，不依赖 CDN -->
+<link rel="stylesheet" href="swiper/swiper-bundle.min.css">
+<script src="swiper/swiper-bundle.min.js"></script>
+<style>
+  /* ===== 页面基础 ===== */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f4f6fb;color:#1f2937;line-height:1.7}
+  .zyx1029_wrap{max-width:1060px;margin:0 auto;padding:22px 20px 60px}
+
+  /* ===== 顶部条：返回首页 + 右侧装饰文字 ===== */
+  .zyx1029_topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .zyx1029_topbar a{text-decoration:none;color:#0f2b5b;font-size:14px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:8px 20px;transition:transform .2s,box-shadow .2s}
+  .zyx1029_topbar a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+  .zyx1029_topbar span{font-size:12px;letter-spacing:3px;color:#94a3b8;font-family:Consolas,monospace}
+
+  /* ===== 蓝色头部 ===== */
+  .zyx1029_head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:18px;padding:30px 34px;color:#fff;margin-bottom:24px;box-shadow:0 12px 30px rgba(15,43,91,.3)}
+  .zyx1029_head h1{font-size:24px;letter-spacing:1px;line-height:1.5}
+  .zyx1029_head h1 b{color:#ffd166}
+  .zyx1029_head p{margin-top:10px;font-size:13.5px;color:#d9e3f5;line-height:2}
+  .zyx1029_head code{background:rgba(255,255,255,.14);padding:1px 6px;border-radius:4px;font-family:Consolas,monospace;font-size:12.5px}
+
+  /* 🟥 老师圈画标注条：红边浅红底，模拟老师红笔圈画的"必问"提醒 */
+  .zyx1029_rednote{background:#fef2f2;border:1.5px solid #ef4444;border-radius:12px;padding:12px 18px;margin:-8px 0 20px;color:#b91c1c;font-size:13.5px;line-height:2}
+
+  /* ===== 双栏网格（提示词对比 + 演示对比）===== */
+  .zyx1029_grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+  @media (max-width:860px){.zyx1029_grid{grid-template-columns:1fr}}
+
+  /* ===== 对比卡片 ===== */
+  /* min-width:0 关键：防止内嵌轮播与 1fr 网格轨道互相撑宽形成死循环 */
+  .zyx1029_card{min-width:0;background:#fff;border:1px solid #e8ecf5;border-radius:16px;padding:20px 22px;box-shadow:0 4px 14px rgba(31,41,55,.06)}
+  .zyx1029_badge{display:inline-block;font-size:12.5px;font-weight:bold;border-radius:999px;padding:4px 14px;margin-bottom:12px}
+  .zyx1029_badge.zyx1029_r1{background:#eef2ff;color:#1d4ed8;border:1px solid #c7d8f8}
+  .zyx1029_badge.zyx1029_r2{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+  .zyx1029_badge.zyx1029_bad{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+  .zyx1029_badge.zyx1029_good{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+  .zyx1029_card h3{font-size:15.5px;color:#111827;margin-bottom:8px}
+  .zyx1029_card h3 code{background:#f1f5f9;padding:1px 6px;border-radius:4px;font-family:Consolas,monospace;font-size:13px;color:#334155}
+  .zyx1029_quote{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 15px;font-size:13px;color:#475569;line-height:2;margin-bottom:12px}
+  .zyx1029_quote b{color:#0f2b5b}
+  .zyx1029_card ul{list-style:none;margin:0 0 4px}
+  .zyx1029_card li{font-size:13px;color:#475569;line-height:2;padding-left:4px}
+  .zyx1029_card li.zyx1029_no::before{content:"✗ ";color:#dc2626;font-weight:bold}
+  .zyx1029_card li.zyx1029_ok::before{content:"✓ ";color:#16a34a;font-weight:bold}
+  .zyx1029_card p.zyx1029_desc{font-size:13px;color:#475569;line-height:2;margin-bottom:12px}
+  .zyx1029_card p.zyx1029_desc code{background:#f1f5f9;padding:1px 6px;border-radius:4px;font-family:Consolas,monospace;font-size:12.5px;color:#334155}
+  .zyx1029_card p.zyx1029_desc b{color:#b91c1c}
+
+  /* ===== 卡片内演示轮播 ===== */
+  .zyx1029_demo{min-width:0;border-radius:12px;overflow:hidden;border:1px dashed #cbd5e1}
+  .zyx1029_demo.zyx1029_broken{border:1.5px dashed #dc2626}
+  .zyx1029_demo .swiper{overflow:hidden}
+  .zyx1029_demo .swiper-slide{position:relative;height:200px}
+  .zyx1029_demo .swiper-slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .zyx1029_demo .zyx1029_cap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 10px;color:#fff;background:linear-gradient(transparent,rgba(5,15,35,.8))}
+  .zyx1029_demo .zyx1029_cap h4{font-size:14.5px;letter-spacing:1px}
+  .zyx1029_demo .zyx1029_cap p{font-size:12px;color:#dbe6f8;margin-top:2px}
+  .zyx1029_demo .swiper-pagination-bullet{background:#0f2b5b;opacity:.35}
+  .zyx1029_demo .swiper-pagination-bullet-active{background:#e8890c;opacity:1;width:20px;border-radius:5px}
+
+  /* ===== 底部代码牌（AI 最终配置）===== */
+  .zyx1029_code{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:18px 22px;font-family:Consolas,monospace;font-size:13px;line-height:1.9;overflow:auto;margin:0 0 8px}
+  .zyx1029_code .zyx1029_cmt{color:#94a3b8}
+
+  /* ===== 提示词弹窗窗口 ===== */
+  /* 右下角悬浮按钮：fixed 脱离文档流钉在视口右下，z-index 保证盖在内容之上 */
+  .zyx1029_pbtn{position:fixed;right:22px;bottom:22px;z-index:99;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:bold;color:#fff;background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:999px;padding:12px 22px;box-shadow:0 10px 24px rgba(15,43,91,.35);transition:transform .2s,box-shadow .2s}
+  .zyx1029_pbtn:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,43,91,.45)}
+
+  /* 弹窗遮罩：默认 display:none 隐藏；加 .zyx1029_show 后 flex 居中显示内容盒 */
+  .zyx1029_mask{display:none;position:fixed;inset:0;z-index:100;background:rgba(15,23,42,.55);backdrop-filter:blur(3px)}
+  .zyx1029_mask.zyx1029_show{display:flex;align-items:center;justify-content:center;padding:20px}
+
+  /* 弹窗内容盒：限宽 680px、最高 82vh 超出内部滚动；相对定位供右上角关闭按钮锚定 */
+  .zyx1029_mbox{width:min(680px,100%);max-height:82vh;overflow:auto;background:#fff;border-radius:18px;padding:26px 28px;box-shadow:0 24px 60px rgba(2,8,23,.35);position:relative}
+  .zyx1029_mbox h3{font-size:17px;color:#0f2b5b;margin-bottom:14px;padding-left:12px;border-left:4px solid #1d5bbf}
+  .zyx1029_mtag{display:inline-block;font-size:12px;font-weight:bold;border-radius:999px;padding:3px 12px;margin-bottom:8px;background:#eef2ff;color:#1d4ed8;border:1px solid #c7d8f8}
+  .zyx1029_mquote{background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #f59e0b;border-radius:10px;padding:12px 15px;font-size:13.5px;color:#475569;line-height:2;margin-bottom:14px}
+  .zyx1029_mquote b{color:#0f2b5b}
+  .zyx1029_mnote{font-size:12.5px;color:#94a3b8;margin:4px 0 10px}
+  /* 完整提示词日志区：深色终端风，超长时内部滚动（最高 46vh），pre-wrap 保留换行缩进 */
+  .zyx1029_mlog{max-height:46vh;overflow:auto;background:#0f172a;color:#cbd5e1;border-radius:12px;padding:14px 16px;font-family:Consolas,monospace;font-size:12px;line-height:1.8;white-space:pre-wrap;word-break:break-all;margin-bottom:14px}
+  /* JS 核心代码块：深色终端风，white-space:pre 保留缩进、超宽横向滚动，最高 40vh 内部滚动 */
+  .zyx1029_mcode{max-height:40vh;overflow:auto;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;font-family:Consolas,monospace;font-size:12px;line-height:1.8;white-space:pre;margin-bottom:14px}
+
+  /* ===== 可折叠代码 / 提示词日志：默认收起，只露一行按钮 ===== */
+  .zyx1029_fold{margin-top:6px}
+  .zyx1029_foldbtn{display:block;width:100%;text-align:left;border:1px solid #dbe4f3;background:#f5f8ff;color:#1d4ed8;font-family:inherit;font-size:13px;font-weight:bold;border-radius:10px;padding:10px 14px;cursor:pointer;transition:background .2s,border-color .2s}
+  .zyx1029_foldbtn:hover{background:#eaf1ff;border-color:#bfd3f7}
+  .zyx1029_foldpanel{display:none;margin-top:10px}
+  .zyx1029_foldpanel.zyx1029_open{display:block}
+  .zyx1029_mlinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .zyx1029_mlinks a{font-size:13px;font-weight:bold;text-decoration:none;color:#0f2b5b;background:#f1f5f9;border:1px solid #dbe4ff;border-radius:999px;padding:8px 16px;transition:transform .2s,box-shadow .2s}
+  .zyx1029_mlinks a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+  .zyx1029_mclose{position:absolute;top:12px;right:14px;width:34px;height:34px;border:none;border-radius:50%;background:#f1f5f9;color:#475569;font-size:17px;cursor:pointer;transition:background .2s}
+  .zyx1029_mclose:hover{background:#e2e8f0}
+
+  /* ===== 返回链接 ===== */
+  .zyx1029_back{text-align:center;margin-top:28px}
+  .zyx1029_back a{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14.5px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;margin:0 6px;transition:transform .2s,box-shadow .2s}
+  .zyx1029_back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+
+  footer{text-align:center;margin-top:28px;color:#9ca3af;font-size:13px;line-height:2}
+</style>
+</head>
+<body>
+<div class="zyx1029_wrap">
+
+  <!-- 顶部条 -->
+  <div class="zyx1029_topbar">
+    <a href="index.html">← 返回首页</a>
+    <span>PROMPT · ENGINEERING · SWIPER</span>
+  </div>
+
+  <!-- 蓝色头部 -->
+  <div class="zyx1029_head">
+    <h1>任务一 · Swiper 提示词工程 <b>同样需求，两轮提示词差在哪</b></h1>
+    <p>两轮 AI 产出并排对比。左边第一轮笼统地说需求，AI 给的 <code>autoplay</code> 少了 <code>disableOnInteraction:false</code>——
+    手动操作之后自动轮播就停了；右边第二轮把 4 条需求逐条写清，配置一次到位，手动操作后轮播<b style="color:#ffd166">继续翻页</b>。</p>
+  </div>
+
+  <!-- 🟥 老师圈画必问标注条：内容来自老师投影红笔圈画照片 -->
+  <div class="zyx1029_rednote">🟥 老师圈画 · 必问：需求 ③「<b>圆点分页器可点击</b>」——pagination 挂载 el + clickable:true，点圆点为什么能跳到对应 slide；红笔另写「<b>prompt.md</b>」＝要交提示词记录，点右下角「📜 查看全部提示词」即可展示全部 52 条。</div>
+
+  <!-- 两轮提示词对比 -->
+  <div class="zyx1029_grid">
+
+    <div class="zyx1029_card">
+      <span class="zyx1029_badge zyx1029_r1">第一轮提示词</span>
+      <div class="zyx1029_quote">"任务一，用多组图片要求他可以<b>无缝循环 3.2 秒自动翻页，手动操作之后不停止</b>　可以点击<b>圆点分页器</b>　初始效果为 <b>cube</b>. 帮我放在一个新的网页"</div>
+      <ul>
+        <li class="zyx1029_no">需求挤在一句话里，AI 容易漏掉"手动后不停止"</li>
+        <li class="zyx1029_no">没说输出格式 → AI 可能附带多余外层代码</li>
+        <li class="zyx1029_no">没强调关键参数，AI 默认 <b style="color:#dc2626">disableOnInteraction:true</b></li>
+      </ul>
+    </div>
+
+    <div class="zyx1029_card">
+      <span class="zyx1029_badge zyx1029_r2">第二轮提示词</span>
+      <div class="zyx1029_quote">"请生成 new Swiper('#wySw4', { 这里面的配置 })，<b>严格满足下面全部 4 条</b>，不要多写外层代码，只给 {} 内部配置：1. 开启无缝循环 loop: true　2. 自动翻播间隔 3.2 秒，<b>重点：手动滑动之后自动轮播不能停止</b>　<b>3. 开启圆点分页器，并且分页圆点支持点击切换 slide</b>　4. 切换效果 effect: 'cube'。输出标准 js 配置，不要额外解释。"</div>
+    </div>
+
+    <!-- 第一轮 · 错：AI 第一次写的 -->
+    <div class="zyx1029_card">
+      <span class="zyx1029_badge zyx1029_bad">第一轮 · ✗ 错</span>
+      <h3>AI 第一次写的</h3>
+      <p class="zyx1029_desc">AI 配了 <code>autoplay: { delay: 3200 }</code>，但<b>没给 disableOnInteraction:false</b>——
+      按住拖一下或者点圆点之后，自动轮播就悄悄停了（下面的演示<b>手动操作一次后</b>观察它还翻不翻页）：</p>
+      <div class="zyx1029_demo zyx1029_broken">
+        <div class="swiper" id="zyx1029SwBad">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="zyx1029_cap"><h4>天宫空间站</h4><p>2022 年全面建成</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号动车组"><div class="zyx1029_cap"><h4>复兴号动车组</h4><p>350 km/h 最高时速</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919大飞机"><div class="zyx1029_cap"><h4>C919 大飞机</h4><p>2023 年商业首航</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二轮 · 对：修完以后 -->
+    <div class="zyx1029_card">
+      <span class="zyx1029_badge zyx1029_good">第二轮 · ✓ 对</span>
+      <h3>修完以后</h3>
+      <p class="zyx1029_desc">补上 <code>disableOnInteraction: false</code>，并把分页器挂到指定 <code>el</code>、开 <code>clickable</code>。
+      随便拖、随便点圆点，3.2 秒后自动轮播<b style="color:#16a34a">照常继续</b>：</p>
+      <div class="zyx1029_demo">
+        <div class="swiper" id="zyx1029SwGood">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="zyx1029_cap"><h4>奋斗者号</h4><p>10909 米 · 马里亚纳海沟</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="zyx1029_cap"><h4>中国天眼 FAST</h4><p>500 米口径观天巨目</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/aidamodu_1.jpg" alt="爱达·魔都号"><div class="zyx1029_cap"><h4>爱达·魔都号</h4><p>2024 年 1 月 1 日首航</p></div></div>
+          </div>
+          <div id="zyx1029PagGood"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AI 最终采用的配置（第二轮回答） -->
+  <div class="zyx1029_code">new Swiper('#wySw4', {
+  loop: true,                                  <span class="zyx1029_cmt">// ① 无缝循环</span>
+  effect: 'cube',                              <span class="zyx1029_cmt">// ④ 初始效果 cube</span>
+  autoplay: {                                  <span class="zyx1029_cmt">// ② 3.2 秒自动翻页</span>
+    delay: 3200,
+    disableOnInteraction: false                <span class="zyx1029_cmt">// 关键补丁：手动操作后不停止</span>
+  },
+  pagination: {                                <span class="zyx1029_cmt">// ③ 圆点分页器</span>
+    el: '#wyPag4',
+    clickable: true                            <span class="zyx1029_cmt">// 圆点支持点击跳转</span>
+  }
+});</div>
+
+  <div class="zyx1029_back">
+    <a href="swiper-task.html">← 返回 Swiper 任务页</a>
+  </div>
+
+  <footer>任务一 · 提示词工程师 · Swiper AI 协作进阶 · 高级网页设计 · 赵雨欣 24001011029</footer>
+
+  <!-- ===== 提示词弹窗窗口：点右下角按钮弹出，窗内收录 zyx1029_prompt.md 全部提示词记录（001-052）===== -->
+  <button class="zyx1029_pbtn" id="zyx1029Pbtn" type="button">📜 查看全部提示词</button>
+  <div class="zyx1029_mask" id="zyx1029Mask">
+    <div class="zyx1029_mbox" role="dialog" aria-label="全部提示词记录">
+      <button class="zyx1029_mclose" id="zyx1029Mclose" type="button" aria-label="关闭">✕</button>
+      <h3>提示词记录 · zyx1029_prompt.md 全文（001-052）</h3>
+      <!-- 完整提示词日志：内容由构建脚本从 zyx1029_prompt.md 读取并 HTML 转义后注入 -->
+      <div class="zyx1029_fold">
+        <button class="zyx1029_foldbtn" type="button" aria-expanded="false" data-label="提示词记录全文（001–052）">▸ 展开提示词记录全文（001–052）</button>
+        <div class="zyx1029_foldpanel">
+      <pre class="zyx1029_mlog" id="zyx1029Mlog"># 提示词记录
+
+（本文件为追加记录，请勿覆盖历史内容）
+
+## 记录 001
+
+- 时间：2026-10-22 13:42:16（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+设定规则：从现在开始，所有CSS类名，id名、js变量都以zyx1029_开始，所有的提示词都在执行之前写入文件zyx1029_prompt.md，以附加的方式写入，不覆盖之前的内容，写入的内容包括时间、使用的模型、提示词内容。
+```
+
+---
+
+## 记录 002
+
+- 时间：2026-10-22 13:44:41（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+设置规则：新建的html文件加入超链接到首页index.html
+```
+
+---
+
+## 记录 003
+
+- 时间：2026-10-22 13:50:29（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+做两个html网页iconfont-1.html,inconfont-2.html，分别显示font awesome图标和lucide图标，前者使用字体图标的方式，后者使用svg的方式，相关的cdn文件下载到本目录下的cdn目录。
+```
+
+---
+
+## 记录 004
+
+- 时间：2026-10-22 14:04:23（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+请根据skills下面的frontend-design里面的skill去优化iconfont-1.html和iconfont-2.html两个页面的设计等个，使其更有艺术美感，更优雅。
+```
+
+---
+
+## 记录 005
+
+- 时间：2026-10-22 14:20:30（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+根据font目录中的iconfont图标完成移动端的固定的自适应宽度的下导航，导航项目包括4个，完成html网页的设计，网页名称iconfont-3.html和iconfont-4.html分别使用字体图标和svg，包括右上角的数字徽章和红点。
+```
+
+---
+
+## 记录 006
+
+- 时间：2026-10-22 14:38:19（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+创建skill:提交项目：使用git commit并push当前项目到`https://gitee.com/zhao-yuxin-111/advanced-web-page-1029zyx.git`
+```
+
+---
+
+## 记录 007
+
+- 时间：2026-10-22 14:42:43（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+好的，执行提交项目
+```
+
+---
+
+## 记录 008
+
+- 时间：2026-10-22 14:53:35（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+推送完成后请汇报结果
+```
+
+---
+
+## 记录 009
+
+- 时间：2026-10-31 14:42:28（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+创建技能skill：提交到github，将本项目提交commit并push到`https://github.com/zttgg/zhaoyuxin.git`，使用已设置公钥。
+```
+
+---
+
+## 记录 010
+
+- 时间：2026-10-31 14:46:23（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+提交到 github
+```
+
+---
+
+## 记录 011
+
+- 时间：2026-10-31 15:10:00（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+都删了，只留图片里这个
+（附截图：d:\gaojiwangye 下仅保留「24001011029赵雨欣」文件夹，删除其余全部内容）
+```
+
+---
+
+## 记录 012
+
+- 时间：2026-10-31 15:12:01（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+提交到 github
+（背景：确认提交 d:\gaojiwangye 清理结果，仓库仅保留 24001011029赵雨欣 文件夹）
+```
+
+---
+
+## 记录 013
+
+- 时间：2026-11-02 13:30:31（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+修改规则 AGENTS.md：
+新建一个html文件时，要加入注释，尤其是js部分代码函数的主要功能实现。
+注释内容包括：赵雨欣，建立时间，使用模型、功能名称及简介
+```
+
+---
+
+## 记录 014
+
+- 时间：2026-11-02 13:32:29（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+把之前删除的恢复但是不推送
+（背景：从 96fd3e61 检出 2026-10-31 清理提交 c129bb4a 删除的文件到工作区，不创建提交、不推送）
+（补充：恢复过程中 zyx1029_prompt.md 曾回退到记录 010 版本，记录 011-014 由本条补录恢复）
+```
+
+---
+
+## 记录 015
+
+- 时间：2026-11-02 13:40:56（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+请给我新建一个html文件，显示tab选项卡，选项卡分别为国内新闻、省内新闻、国际新闻、最热新闻，国内新闻作为默认选项。就是、文件单独放在js文件夹中，外部引用，js部分tab选项卡可复用。实现代码中包含事件监听，清除所有选项卡的选中状态
+```
+
+---
+
+## 记录 016
+
+- 时间：2026-11-02 13:54:43（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+（DOM查找方式课堂笔记 + wy_clearActive 示例代码）`d:\gaojiwangye\24001011029赵雨欣/js\zyx1029_tab.js`帮我以注释的形式加进去
+```
+
+---
+
+## 记录 017
+
+- 时间：2026-11-02 14:14:17（Asia/Shanghai）
+- 模型：opencode/big-pickle
+- 提示词内容：
+
+```
+Create or update `AGENTS.md` for this repository.
+
+The goal is a compact instruction file that helps future OpenCode sessions avoid mistakes and ramp up quickly. Every line should answer: "Would an agent likely miss this without help?" If not, leave it out.
+
+User-provided focus or constraints (honor these):
+
+
+## How to investigate
+
+Read the highest-value sources first:
+- `README*`, root manifests, workspace config, lockfiles
+- build, test, lint, formatter, typecheck, and codegen config
+- CI workflows and pre-commit / task runner config
+- existing instruction files (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`)
+- repo-local OpenCode config such as `opencode.json`
+
+If architecture is still unclear after reading config and docs, inspect a small number of representative code files to find the real entrypoints, package boundaries, and execution flow. Prefer reading the files that explain how the system is wired together over random leaf files.
+
+Prefer executable sources of truth over prose. If docs conflict with config or scripts, trust the executable source and only keep what you can verify.
+
+## What to extract
+
+Look for the highest-signal facts for an agent working in this repo:
+- exact developer commands, especially non-obvious ones
+- how to run a single test, a single package, or a focused verification step
+- required command order when it matters, such as `lint -&gt; typecheck -&gt; test`
+- monorepo or multi-package boundaries, ownership of major directories, and the real app/library entrypoints
+- framework or toolchain quirks: generated code, migrations, codegen, build artifacts, special env loading, dev servers, infra deploy flow
+- repo-specific style or workflow conventions that differ from defaults
+- testing quirks: fixtures, integration test prerequisites, snapshot workflows, required services, flaky or expensive suites
+- important constraints from existing instruction files worth preserving
+
+Good `AGENTS.md` content is usually hard-earned context that took reading multiple files to infer.
+
+## Questions
+
+Only ask the user questions if the repo cannot answer something important. Use the `question` tool for one short batch at most.
+
+Good questions:
+- undocumented team conventions
+- branch / PR / release expectations
+- missing setup or test prerequisites that are known but not written down
+
+Do not ask about anything the repo already makes clear.
+
+## Writing rules
+
+Include only high-signal, repo-specific guidance such as:
+- exact commands and shortcuts the agent would otherwise guess wrong
+- architecture notes that are not obvious from filenames
+- conventions that differ from language or framework defaults
+- setup requirements, environment quirks, and operational gotchas
+- references to existing instruction sources that matter
+
+Exclude:
+- generic software advice
+- long tutorials or exhaustive file trees
+- obvious language conventions
+- speculative claims or anything you could not verify
+- content better stored in another file referenced via `opencode.json` `instructions`
+
+When in doubt, omit.
+
+Prefer short sections and bullets. If the repo is simple, keep the file simple. If the repo is large, summarize the few structural facts that actually change how an agent should work.
+
+If `AGENTS.md` already exists at `D:\gaojiwangye`, improve it in place rather than rewriting blindly. Preserve verified useful guidance, delete fluff or stale claims, and reconcile it with the current codebase.
+```
+
+---
+
+## 记录 018
+
+- 时间：2026-11-02 14:18:45（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/5`读取文件5的内容请给我新建一个html文件，显示tab选项卡，就是、文件单独放在js文件夹中，外部引用，js部分tab选项卡可复用。实现代码中包含事件监听，清除所有选项卡的选中状态再设置当前元素的选中状态。命名都要带zhaoyuxin1029
+（5 文件夹内容：4 张课堂投影照片——影视排行榜 Tab 选项卡案例：每日/每周/每月/全部 四个选项卡，Top10 榜单，前三名彩色数字徽章）
+```
+
+---
+
+## 记录 019
+
+- 时间：2026-11-02 14:23:41（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+要一比一还原`d:\gaojiwangye\24001011029赵雨欣/5`
+（5 文件夹 4 张投影照片逐字识别结果：纯 UI 截图，含每日/每周/每月/全部四张榜单的真实剧名与选中态样式，需精确还原榜单数据、深灰底选中态、红/灰拼接分隔线、前三名红色徽章）
+```
+
+---
+
+## 记录 020
+
+- 时间：2026-11-02 14:27:17（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+js要使用外部引用
+```
+
+---
+
+## 记录 021
+
+- 时间：2026-11-02 14:30:34（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+帮我新建一个indexzhaoyuxin1029.html,只放这个代码
+```
+
+---
+
+## 记录 022
+
+- 时间：2026-11-02 14:33:37（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/indexzhaoyuxin1029.html`帮我提交到github
+```
+
+---
+
+## 记录 023
+
+- 时间：2026-11-02 14:48:40（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+什么原因（上传 GitHub Pages 404 截图，地址 zttgg.github.io/zhaoyin/）
+```
+
+```
+需要（为仓库根生成 index.html 首页并提交到 github，解决 zttgg.github.io/zhaoyuxin/ 的 404）
+```
+
+---
+
+## 记录 024
+
+- 时间：2026-11-05 14:32:02（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/swiper-task.html`帮我完成四个任务
+```
+
+---
+
+## 记录 025
+
+- 时间：2026-11-05 14:44:59（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+index文件中有所有课堂实践的入口。
+```
+
+---
+
+## 记录 026
+
+- 时间：2026-11-05 14:49:47（Asia/Shanghai）
+- 模型：DeepSeek-V4-Pro
+- 提示词内容：
+
+```
+index提示词创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为赵雨欣的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。
+```
+
+---
+
+## 记录 027
+
+- 时间：2026-11-06 17:42:57（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/swiper-task.html`帮我完成三个任务
+（附企业微信截图：Swiper AI 协作进阶三任务——
+任务一·提示词工程师：不写代码写提示词，让 AI 生成 new Swiper('#wySw4', {...}) 配置（①无缝循环②3.2秒自动翻页且手动操作后不停止③圆点分页器可点击④初始效果 cube），至少迭代 2 轮，保留每轮提示词与 AI 回答并粘贴验证，用截图+一句话结论说明结果；
+任务二·creative 仿写：参考官方示例 swiper/demo/257-effect-creative.html，为演示四新增第 7 个按钮「creative 电影选片墙」（上一张缩小移开带角度、下一张放大进场），弄明白 prev/next 的 transform 各控制什么、百分号相对谁、改数值让卡片转 20 度；
+任务三·综合创作+技术答辩：用 AI 生成横版 16:9 图片添加第六件展品「爱达·魔都号」（首艘国产大型邮轮 2024 年 1 月首航），并任选 keyboard/mousewheel/zoom/parallax 之一加上去，准备答辩四连问；11.9 前提交 github 并给提示词留有访问入口）
+```
+
+---
+
+## 记录 028
+
+- 时间：2026-11-09 13:40:09（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/swiper-task.html`任务一・提示词工程师：让 AI 听懂需求 ★★
+本任务不写代码，写提示词。把下面需求 "翻译" 给 AI，让它生成 new Swiper('#wySw4', {...}) 配置：
+① 无缝循环 ② 3.2 秒自动翻页且手动操作后不停止 ③ 圆点分页器可点击 ④ 初始效果为 cube。帮我放在一个新的网页里面
+```
+
+---
+
+## 记录 029
+
+- 时间：2026-11-09 13:46:30（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/zyx1029_task1_prompt.html`帮我写Swiper的配置，选择cube切换效果，开启自动轮播，带圆点分页器，循环播放。
+选择器是 #wySw4，返回 new Swiper 第二个参数里的配置对象。
+（背景：将任务一的最终配置代码写入 zyx1029_task1_prompt.html 交付页）
+```
+
+---
+
+## 记录 030
+
+- 时间：2026-11-09 13:52:40（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/zyx1029_task1_prompt.html`帮我写Swiper的配置，选择cube切换效果，开启自动轮播，带圆点分页器，循环播放。
+选择器是 #wySw4，返回 new Swiper 第二个参数里的配置对象。
+这个作为我第一轮提示词
+（背景：把用户这条真实提示词作为任务一交付页的"第 1 轮提示词"，并配套生成 AI 第 1 轮回答）
+```
+
+---
+
+## 记录 031
+
+- 时间：2026-11-09 13:58:10（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+请生成 new Swiper('#wySw4', { 这里面的配置 })，严格满足下面全部4条，不要多写外层代码，只给{}内部配置：
+1. 开启无缝循环 loop: true
+2. 自动翻播间隔3.2秒，**重点：手动滑动之后自动轮播不能停止**
+3. 开启圆点分页器，并且分页圆点支持点击切换slide
+4. 切换效果 effect: 'cube'
+输出标准js配置，不要额外解释。
+这个作为第二轮提示词
+（背景：把用户这条真实提示词作为任务一交付页的"第 2 轮提示词"，替换原有拟写的第 2 轮文案）
+```
+
+---
+
+## 记录 032
+
+- 时间：2026-11-09 14:36:20（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/zyx1029_task1_prompt.html`任务二请详细讲解 Swiper 中 creative 自定义切换效果的用法，用通俗的话说明：
+1. creativeEffect 配置里的 prev 和 next 分别对应哪张幻灯片
+2. 里面的 transform 支持哪些属性，写法格式是什么
+3. 属性值里的百分比是基于什么元素计算的
+结合官方示例 257-effect-creative.html 说明
+也放进这个网页
+（背景：已核对本地 swiper/demo/257-effect-creative.html 与 swiper/modules/effect-creative.mjs 源码后编写讲解）
+```
+
+---
+
+## 记录 033
+
+- 时间：2026-11-09 14:42:50（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/zyx1029_task1_prompt.html`任务二请详细讲解 Swiper 中 creative 自定义切换效果的用法，用通俗的话说明：
+1. creativeEffect 配置里的 prev 和 next 分别对应哪张幻灯片
+2. 里面的 transform 支持哪些属性，写法格式是什么
+3. 属性值里的百分比是基于什么元素计算的
+结合官方示例 257-effect-creative.html 说明
+也放进这个网页这个作为第一轮提示词
+（背景：把用户这条真实提示词作为任务二讲解区的"第 1 轮提问"写入页面）
+```
+
+---
+
+## 记录 034
+
+- 时间：2026-11-09 14:52:30（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+任务二・creative 仿写：课堂没讲，AI 教你 ★★★
+课堂上只讲了 6 种 effect，Swiper 其实还有第 7 种 ——creative（自定义变换），本课未讲解。
+请打开官方示例 swiper/demo/257-effect-creative.html，配合 AI 读懂 creativeEffect 的 transform 写法，
+为演示四新增第 7 个按钮「creative 电影墙」。
+效果要求：上一张缩小左移并带角度、下一张放大右移进场（参数自定，但要 "像电影选片墙"）；
+实现后须向 AI 追问并用自己的话写下：prev /next 的 transform 各控制什么？
+（背景：官方任务二要求；核对 swiper-task.html 现有 creative 实现后，将 prev 由"上移沉入"改为"缩小 0.62 倍+左移 85%+歪 18 度"以严格满足要求，并同步更新 B 区文案与交付页任务二区）
+```
+
+---
+
+## 记录 035
+
+- 时间：2026-11-09 15:06:40（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+任务一第一轮提示词所生成的效果也给我放进去
+（背景：在 zyx1029_task1_prompt.html 第 1 轮对话下方加入该配置的实机演示——原样套用 AI 第 1 轮回答
+（autoplay:true / el:'.swiper-pagination' / effect:'cube'），分页器只给 id wyPag4 复现"圆点不出现"缺陷，
+附观察点说明卡；引用本地 swiper/swiper-bundle.min.js，不用 CDN；浏览器实测 4 项全部通过）
+```
+
+---
+
+## 记录 036
+
+- 时间：2026-11-09 15:31:20（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+`d:\gaojiwangye\24001011029赵雨欣/swiper-task.html`删除三个任务
+（背景：删除此前添加的三个进阶任务（A 提示词工程师 / B creative 仿写 / C 展品+键盘控制），
+同步移除顶部快捷入口、第 7 个 creative 按钮、4 个轮播中的爱达·魔都号 slide、
+所有 keyboard:true、重建实例中的 creativeEffect 分支及相关 CSS，恢复为教师版四任务基础形态）
+```
+
+---
+
+## 记录 037
+
+- 时间：2026-11-09 16:02:30（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+任务一第一轮提示词帮我写Swiper的配置，选择cube切换效果，开启自动轮播，带圆点分页器，循环播放。
+选择器是 #wySw4，返回 new Swiper 第二个参数里的配置对象。
+放在一个网页里面
+（背景：重建 zyx1029_task1_prompt.html（用户此前已删除），当前只含第 1 轮内容——
+提示词原文、AI 第 1 轮回答（含两处缺陷标注）、第 1 轮配置实机演示轮播、观察点卡、答辩追问卡；
+第 2 轮内容待用户确认后再加入）
+```
+
+---
+
+## 记录 038
+
+- 时间：2026-11-09 16:20:10（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词内容：
+
+```
+请生成 new Swiper('#wySw4', { 这里面的配置 })，严格满足下面全部4条，不要多写外层代码，只给{}内部配置：
+1. 开启无缝循环 loop: true
+2. 自动翻播间隔3.2秒，**重点：手动滑动之后自动轮播不能停止**
+3. 开启圆点分页器，并且分页圆点支持点击切换slide
+4. 切换效果 effect: 'cube'
+输出标准js配置，不要额外解释。
+这个是第二轮提示词，帮我放进网页，排版请帮我和第一轮进行对比
+（背景：zyx1029_task1_prompt.html 加入第 2 轮对话、第 2 轮实机演示轮播（圆点可点、3.2 秒不停）、
+两轮对比表（提示词写法/循环/自动播放/手动后不停/分页器/cube/结论 七行对比）与答辩追问卡更新）
+```
+
+---
+
+## 记录 039
+
+- 时间：2026-11-10 09:30:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词内容：
+
+```
+任务二·creative 仿写:课堂没讲,Al教你
+课堂上只讲了6种 effect，Swiper 其实还有第7种--creative(自定义变换)，本课未讲解。请打开官方示例
+swiper/demo/257-effect-creative.html，配合 AI 读懂 creativeEffect的transform写法，为演示四新增
+第7 个按钮[creative 电影墙」。
+效果要求:上一张缩小左移并带角度、下一张放大右移进场(参数自定，但要"像电影选片墙");实现后须向 AI
+追问并用自己的话写下:prev/next 的 transform 各控制什么?
+答辩抽问:transform 里的百分号是相对谁的?改一个数值让卡片转 20 度试试?
+考核点:用 AI 自学未讲过的 API + 官方示例阅读能力:计入课堂分帮我放在新的网页
+（背景：新建 zyx1029_task2_creative.html 独立交付页，7 按钮实时切换、creative 电影墙默认展示，
+附追问与答辩抽问回答；index.html 增加第 17 个模块入口）
+```
+
+---
+
+## 记录 040
+
+- 时间：2026-11-10 10:20:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词内容：
+
+```
+任务三·综合创作 + 技术答辩:超纲加分项
+两件事:① 为光影展添加第六件展品爱达·魔都号(首艘国产大型邮轮，2024年1月首航)，图片用 AI生成
+(横版 16:9)，slide 结构完整;② 挑一个课堂上没讲过的 Swiper 能力加上去:keyboard 键盘控制/
+mousewheel 滚轮/zoom 双击缩放/parallax 视差，任选其一，AI 可用。
+提交物:能运行的页面 + 与 AI 的关键对话记录(提示词 + 重要往返)。答辩四连问:
+这段代码什么意思?AI第一次给的哪里不对、你改了什么?新参数的作用?现场把 delay 改成指定值并解释预期变化。
+考核点:AI 协作完成超纲功能 + 技术表达，答辩通过才算完成。再放在一个新的网页
+（背景：新建 zyx1029_task3_keyboard.html 独立交付页——爱达·魔都号第六件展品（复用已生成的
+swiper-imgs/aidamodu_1.jpg 16:9 横图）+ keyboard 键盘控制实机演示 + 两轮关键对话（含 AI 首轮
+漏 alt、首航时间写错两处修正）+ 答辩四连问回答；index.html 增加第 18 个模块入口）
+```
+
+---
+
+## 记录 041
+
+- 时间：2026-11-10 11:10:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词内容：
+
+```
+任务二给我按照这么做,你自己新找其他图片
+（附截图：任务二页面版式——深蓝头部"Swiper creative effect 自定义出场姿势"，说明官方 effect 只有
+6 种、隐藏第 7 种 creative；下方 7 个配方卡片网格，每卡含标题+transform 代码牌+可拖动图片演示：
+①纯侧移 next 飞出 100% ②双层夹击左右各 120% ③轻推 prev 只退 -20% ④3D 翻转 rotateX 180°
+⑤侧旋 rotateZ ±90° ⑥边缘轴旋转 origin ⑦自配配方斜飞+缩放）
+（背景：按截图版式重写 zyx1029_task2_creative.html 为 7 配方卡片布局，AI 生成两张新图片
+zyx1029_creative_a/b.jpg（竹叶露珠、逆光叶片），保留任务原文卡、提示词对话、追问与答辩抽问卡）
+```
+
+---
+
+## 042
+- 时间：2026-11-10 23:30:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词：`d:\gaojiwangye\24001011029赵雨欣/swiper`根据这个文件，帮我把任务二改其他方法，换一张其他图片
+  - 执行：参考 swiper/demo/257-effect-creative.html，将任务二 6 个配方卡片换成其他 transform 方法（垂直飞入/阴影沉降/缩放后退/3D 侧翻/顶部轴翻转/淡出上浮，电影墙保留），并新生成麦田夕阳图片替换逆光叶片
+
+## 043
+- 时间：2026-11-11 00:30:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词：任务一，用多组图片要求他可以无缝循环 3.2 秒自动翻页，手动操作之后不停止 可以点击圆点分页器 初始效果为cube. 帮我放在一个新的网页
+  - 执行：新建 zyx1029_task1_cube.html，6 组大国重器图片轮播，loop+cube+autoplay(3200,disableOnInteraction:false)+clickable 圆点分页器，附需求清单卡与 AI 配置代码牌
+
+## 044
+- 时间：2026-11-11 01:15:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词：任务一要这样（附截图：两轮提示词左右对比卡片 + 第一轮✗错/第二轮✓对各配实机演示轮播的版式）
+  - 执行：按截图版式重写 zyx1029_task1_cube.html——顶部条+蓝色头部+双栏卡片（第一轮笼统提示词✗三条缺陷 vs 第二轮清单式提示词✓三条优点），下方左错误演示（autoplay 缺 disableOnInteraction:false，手动后停止）右正确演示（手动后继续翻页），底部 AI 最终配置代码牌
+
+## 045
+- 时间：2026-11-10 23:40:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词：`d:\gaojiwangye\24001011029赵雨欣/swiper-task.html`上传到index
+  - 执行：经核对，swiper-task.html 已存在于 index.html 课堂目录第 16 个模块卡片中，无需重复添加
+
+## 046
+- 时间：2026-11-10 23:45:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词：帮我把任务二和三的代码加上讲解注释
+  - 执行：为 zyx1029_task2_creative.html 与 zyx1029_task3_keyboard.html 补充讲解注释——
+    HTML 结构分区注释、Swiper 配置项逐行含义说明（loop/speed/effect/creativeEffect prev-next
+    的 translate-rotate-scale、keyboard、autoplay delay 与 disableOnInteraction、pagination clickable）
+
+## 047
+- 时间：2026-11-12 00:05:00（Asia/Shanghai）
+- 模型：GLM-5.3-FlashX
+- 提示词：帮我把三个问题的提示词分别放进对应的网页（建一个可以跳转的窗口）
+  - 执行：为任务一/二/三三个交付页各新增右下角「📜 查看本任务提示词」按钮 + 弹窗窗口，
+    窗内放各自任务的提示词原文（任务一两轮、任务二/三各一轮），窗底附跳转其他任务页链接，
+    目标页 URL 带 #zyx1029Prompt 时自动弹开提示词窗口
+
+## 048
+- 时间：2026-11-12 00:15:00（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词：任务二这段代码老师可能会问什么问题 → 你帮我放进对应代码位置
+  - 执行：整理 10 个答辩预测问答（creative 与 6 种 effect 区别、prev/next 含义、百分号相对容器、
+    改 rotate 转 20 度、forEach 一段代码通吃、loop 克隆原理、speed 含义、pointer-events、
+    电影墙参数、auto-fit 响应式），以 🎤 答辩预测 注释形式写入 zyx1029_task2_creative.html
+    对应代码位置（CSS 网格/图片、JS 配方表/初始化）
+
+## 049
+- 时间：2026-11-12 00:20:00（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词：任务三可以问哪些问题 → 帮我放进代码
+  - 执行：整理 10 个答辩问答（答辩四连问：整段代码含义/AI 首轮错在哪改了什么/keyboard 作用/
+    现场改 delay 预期变化；细节：keyboard 要先点一下生效、展品图片 16:9 与 slide 结构、
+    子绝父相说明条、disableOnInteraction:false、圆点自动生成、展品主题意义），以
+    🎤 答辩预测 注释写入 zyx1029_task3_keyboard.html 对应位置（CSS slide、HTML 展品 6/
+    分页器、JS 配置区）
+
+## 050
+- 时间：2026-11-12 00:30:00（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词：`d:\gaojiwangye\24001011029赵雨欣/db`给我新建一个html文件，显示上图下文的结构，图片和文字通过本地启动服务器获取当前文件夹下面的db里面db.json的poems里面的图片，title和content。并给我生成server.js数据服务器文件，server.js放在db文件夹中。其中端口号为3004。
+  - 执行：新建 db/server.js（Express 数据服务器，端口 3004，GET /poems 返回 db.json 的
+    poems 数组，手动设置 CORS 头）；新建 zyx1029_poems.html（上图下文卡片布局，fetch
+    http://localhost:3004/poems 渲染 pic/title/content，含服务器未启动提示、返回首页链接）
+
+## 051
+- 时间：2026-11-12 01:00:00（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词：请把全部的提示词都放进任务一
+  - 执行：将任务一提示词弹窗（zyx1029_task1_cube.html）从「本任务 2 轮」扩展为
+    「三个任务提示词合集」——保留任务一两轮原文，新增任务二 creative 仿写、
+    任务三 综合创作+技术答辩 两条原文，按钮文字同步改为「查看全部提示词」
+
+## 052
+- 时间：2026-11-12 01:10:00（Asia/Shanghai）
+- 模型：GLM-5.3-Flash
+- 提示词：`d:\gaojiwangye\24001011029赵雨欣/zyx1029_prompt.md`把这个放进任务一提示词
+  - 执行：将 zyx1029_prompt.md 全文（记录 001-052）以 HTML 转义后注入任务一交付页
+    （zyx1029_task1_cube.html）提示词弹窗的深色滚动日志区（.zyx1029_mlog），
+    弹窗标题改为「提示词记录 · zyx1029_prompt.md 全文」，按钮改为「查看全部提示词」
+</pre>
+        </div>
+      </div>
+
+      <span class="zyx1029_mtag">任务一 · JS 核心代码</span>
+      <div class="zyx1029_fold">
+        <button class="zyx1029_foldbtn" type="button" aria-expanded="false" data-label="任务一 JS 核心代码">▸ 展开任务一 JS 核心代码</button>
+        <div class="zyx1029_foldpanel">
+      <pre class="zyx1029_mcode">// 第一轮「错误版」演示：模拟 AI 第一次的输出——缺 disableOnInteraction:false
+var zyx1029SwBad = new Swiper('#zyx1029SwBad', {
+  loop: true,
+  effect: 'cube',
+  autoplay: { delay: 3200 }   // 未写 disableOnInteraction，默认 true = 手动后停止
+});
+
+// 第二轮「修正版」演示：补上关键参数 + 圆点分页器可点击
+var zyx1029SwGood = new Swiper('#zyx1029SwGood', {
+  loop: true,
+  effect: 'cube',
+  autoplay: { delay: 3200, disableOnInteraction: false },
+  pagination: { el: '#zyx1029PagGood', clickable: true }
+});</pre>
+        </div>
+      </div>
+      <p class="zyx1029_mnote">点击下方可跳转到其他任务页，并自动打开那里的提示词窗口：</p>
+      <div class="zyx1029_mlinks">
+        <a href="zyx1029_task2_creative.html#zyx1029Prompt">→ 任务二 · creative 仿写</a>
+        <a href="zyx1029_task3_keyboard.html#zyx1029Prompt">→ 任务三 · 键盘控制</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════
+  // 📌 任务一 · JS 代码区（从这里开始，到脚本结束）
+  //    核心代码：下方「错误版」与「修正版」两个 new Swiper 初始化
+  //    ——答辩展示就是这两段；弹窗里的复制品仅供展示，真正生效的是这里
+  // ═══════════════════════════════════════════════════════
+
+  // 功能名称及简介：zyx1029_initBad —— 第一轮"错误版"演示轮播：
+  //                  模拟 AI 第一次的输出——autoplay 只给 delay，缺 disableOnInteraction:false，
+  //                  默认手动操作（拖动/点圆点）后自动轮播会停止，用来和右边正确版对比
+  // 作者：赵雨欣  建立时间：2026-11-11  使用模型：GLM-5.3-FlashX
+  var zyx1029SwBad = new Swiper('#zyx1029SwBad', {
+    loop: true,
+    effect: 'cube',
+    autoplay: { delay: 3200 }                  // 未写 disableOnInteraction，默认 true = 手动后停止
+  });
+
+  // 功能名称及简介：zyx1029_initGood —— 第二轮"修正版"演示轮播：
+  //                  照搬 AI 第二轮回答的完整配置——loop + cube + 3.2 秒自动翻页
+  //                  （disableOnInteraction:false 手动后不停）+ 圆点分页器可点击
+  // 作者：赵雨欣  建立时间：2026-11-11  使用模型：GLM-5.3-FlashX
+  var zyx1029SwGood = new Swiper('#zyx1029SwGood', {
+    loop: true,
+    effect: 'cube',
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    pagination: { el: '#zyx1029PagGood', clickable: true }
+  });
+
+  // 功能名称及简介：zyx1029_openPrompt / zyx1029_closePrompt —— 打开/关闭"本任务提示词"弹窗窗口；
+  //                  绑定按钮点击、右上角关闭、点遮罩空白处关闭三种交互；
+  //                  若 URL 带 #zyx1029Prompt（从其他任务页跳转而来）则自动弹开窗口，实现跨页直达
+  // 作者：赵雨欣  建立时间：2026-11-12  使用模型：GLM-5.3-FlashX
+  function zyx1029_openPrompt() {
+    document.getElementById('zyx1029Mask').classList.add('zyx1029_show');
+  }
+  function zyx1029_closePrompt() {
+    document.getElementById('zyx1029Mask').classList.remove('zyx1029_show');
+  }
+  // 点右下角按钮 → 打开窗口
+  document.getElementById('zyx1029Pbtn').addEventListener('click', zyx1029_openPrompt);
+  // 点右上角 ✕ → 关闭窗口
+  document.getElementById('zyx1029Mclose').addEventListener('click', zyx1029_closePrompt);
+  // 点半透明遮罩空白处（事件目标恰好是遮罩本身）→ 关闭窗口，点内容盒不关
+  document.getElementById('zyx1029Mask').addEventListener('click', function (zyx1029E) {
+    if (zyx1029E.target === this) zyx1029_closePrompt();
+  });
+  // 跨页跳转直达：地址栏带 #zyx1029Prompt 时，页面加载完自动弹出提示词窗口
+  if (window.location.hash === '#zyx1029Prompt') zyx1029_openPrompt();
+
+  // 功能名称及简介：zyx1029_toggleFold —— 折叠/展开提示词或核心代码块；
+  //                  切换 aria-expanded 与面板上的 zyx1029_open 类，
+  //                  并按 data-label 同步按钮文案（▸ 展开 / ▾ 收起）
+  // 作者：赵雨欣  建立时间：2026-11-24  使用模型：DeepSeek-V4.1-Flash
+  document.addEventListener('click', function (zyx1029E) {
+    var zyx1029Btn = zyx1029E.target.closest('.zyx1029_foldbtn');
+    if (!zyx1029Btn) return;
+    var zyx1029Panel = zyx1029Btn.parentNode.querySelector('.zyx1029_foldpanel');
+    var zyx1029Open = zyx1029Panel.classList.toggle('zyx1029_open');
+    zyx1029Btn.setAttribute('aria-expanded', zyx1029Open ? 'true' : 'false');
+    zyx1029Btn.textContent = (zyx1029Open ? '▾ 收起' : '▸ 展开') + (zyx1029Btn.getAttribute('data-label') || '');
+  });
+</script>
+</body>
+</html>

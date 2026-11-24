@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<!--
+  文件名称：zyx1029_task2_creative.html
+  作者：赵雨欣
+  建立时间：2026-11-10 11:10:00
+  使用模型：GLM-5.3-FlashX
+  功能名称及简介：任务二「Swiper creative effect 自定义出场姿势」独立交付页 ——
+                  官方 effect 只有 6 种（slide/fade/cube/coverflow/flip/cards），
+                  隐藏第 7 种 creative：用 transform 自己写 prev / next slide 怎么出场。
+                  页面按 7 个效果卡片布局（6 种课堂效果 + creative 电影墙），每个卡片配可拖动演示。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务二 · Swiper creative effect 自定义出场姿势 · 赵雨欣 24001011029</title>
+<!-- 引用本地 Swiper 组件库，不依赖 CDN -->
+<link rel="stylesheet" href="swiper/swiper-bundle.min.css">
+<script src="swiper/swiper-bundle.min.js"></script>
+<style>
+  /* ===== 一、页面基础与全局重置 ===== */
+
+  /* 通配符选择器 *：清除所有元素的默认外边距、内边距（浏览器自带的 8px 空隙），
+     box-sizing: border-box 让元素的 width 包含 padding 和 border，
+     这样设 width:280px 的卡片加上内边距后实际宽度仍是 280px，不会撑破网格 */
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  /* 页面整体：字体优先微软雅黑/苹方，回退到系统无衬线；
+     背景浅灰蓝 #f6f8fc 衬托白色卡片；文字深灰 #1f2937；
+     line-height:1.7 即行距为字号的 1.7 倍，长段落阅读更舒适 */
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f8fc;color:#1f2937;line-height:1.7}
+
+  /* 内容总容器：限宽 1060px 防止宽屏拉伸过散；margin:0 auto 左右自动 = 水平居中；
+     上下留白 40px/60px，与视口边缘保持呼吸感 */
+  .zyx1029_wrap{max-width:1060px;margin:0 auto;padding:40px 20px 60px}
+
+  /* ===== 二、深蓝头部横幅 ===== */
+
+  /* 头部容器：linear-gradient(135deg,...) 画一条左上→右下的深蓝渐变；
+     border-radius:20px 圆角；box-shadow 四值写法（x偏移 y偏移 模糊 颜色）做投影悬浮感 */
+  .zyx1029_head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:20px;padding:32px 36px;color:#fff;margin-bottom:24px;box-shadow:0 12px 30px rgba(15,43,91,.3)}
+
+  /* 头部主标题：27px、字间距 1px、行高 1.4 倍 */
+  .zyx1029_head h1{font-size:27px;letter-spacing:1px;line-height:1.4}
+
+  /* 标题里的 <b> 强调字：金黄色 #ffd166，在深蓝底上最醒目 */
+  .zyx1029_head h1 b{color:#ffd166}
+
+  /* 头部说明段落：浅蓝灰 #d9e3f5（比纯白柔和），行高 2 倍更疏朗 */
+  .zyx1029_head p{margin-top:10px;font-size:14px;color:#d9e3f5;line-height:2}
+
+  /* 段落里的行内代码 <code>：半透明白底色块 + 圆角 + 等宽字体，视觉上区分"代码词" */
+  .zyx1029_head p code{background:rgba(255,255,255,.14);padding:1px 7px;border-radius:4px;font-family:Consolas,monospace;font-size:13px}
+
+  /* 🟥 老师圈画标注条：红边浅红底，模拟老师红笔圈画的"必问"提醒 */
+  .zyx1029_rednote{background:#fef2f2;border:1.5px solid #ef4444;border-radius:12px;padding:12px 18px;margin:-8px 0 22px;color:#b91c1c;font-size:13.5px;line-height:2}
+
+  /* ===== 三、任务原文卡（黄色便签风）===== */
+
+  /* 任务原文容器：米黄底 #fffbea + 黄边框 #fde68a，模拟"便签纸"，
+     与蓝色头部形成撞色，提示老师这里是需要核对的任务要求 */
+  .zyx1029_req{background:#fffbea;border:1px solid #fde68a;border-radius:16px;padding:16px 20px;margin-bottom:24px;font-size:13.5px;color:#7c5e10;line-height:2}
+
+  /* 便签内的加粗字：深琥珀色 #b45309 */
+  .zyx1029_req b{color:#b45309}
+
+  /* 便签内的行内代码：更深的黄底 #fef3c7 + 棕字 #92400e */
+  .zyx1029_req code{background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
+
+  /* ===== 四、演示区标签与 7 个效果卡片网格 ===== */
+
+  /* 分区小标题：「── 实机演示 ──」这行字，深蓝加粗 */
+  .zyx1029_round{font-size:13px;font-weight:bold;color:#0f2b5b;letter-spacing:1px;margin:20px 0 10px}
+
+  /* 卡片网格：display:grid 开启网格布局；
+     repeat(auto-fit, minmax(280px,1fr)) 是响应式核心——
+     每列最窄 280px，屏幕够宽就自动多排几列，窄了自动换行，不用写媒体查询；
+     gap:18px 是卡片间距。
+     🎤 答辩预测：为什么不用媒体查询也能响应式？——auto-fit + minmax(280px,1fr)
+        让每列最窄 280px，宽屏自动多排几列、窄屏自动换行，一行代码适配所有宽度 */
+  .zyx1029_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin:6px 0 8px}
+
+  /* 单张卡片：白底 + 浅边框 + 16px 圆角 + 轻投影；
+     transition 声明 transform 和 box-shadow 两个属性平滑过渡 0.25 秒（配合下方 :hover） */
+  .zyx1029_card{background:#fff;border:1px solid #e8ecf5;border-radius:16px;padding:14px 14px 16px;box-shadow:0 4px 14px rgba(31,41,55,.06);transition:transform .25s,box-shadow .25s}
+
+  /* 鼠标悬停卡片：translateY(-4px) 上浮 4 像素 + 阴影加深，营造"被拿起"的感觉 */
+  .zyx1029_card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(15,43,91,.14)}
+
+  /* 卡片标题行：display:flex 弹性布局，两端对齐（justify-content:space-between）
+     让左边标题、右边代码牌分居两侧；align-items:flex-start 顶部对齐 */
+  .zyx1029_card_head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+
+  /* 卡片标题：14.5px 近黑色 */
+  .zyx1029_card_head h3{font-size:14.5px;color:#111827;line-height:1.5}
+
+  /* 灰色代码牌：展示 effect 写法的小标签；flex:none 不被压缩；
+     max-width:46% 防止代码过长挤掉标题；white-space:pre-line 保留换行
+     （第 7 张卡的代码牌里写了两行字） */
+  .zyx1029_chip{flex:none;max-width:46%;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:5px 9px;font-family:Consolas,monospace;font-size:11.5px;color:#475569;line-height:1.6;white-space:pre-line}
+
+  /* ===== 五、卡片内迷你轮播 ===== */
+
+  /* 迷你轮播容器：圆角裁切（overflow:hidden 让滑动内容不露边）；
+     cursor:grab 显示"抓手"光标，暗示可以拖动 */
+  .zyx1029_mini{border-radius:12px;overflow:hidden;cursor:grab}
+
+  /* 按下时（:active）光标变成"握紧的手"，反馈拖拽中 */
+  .zyx1029_mini:active{cursor:grabbing}
+
+  /* 每个 slide 固定高 190px，7 张卡片轮播高度一致、网格整齐 */
+  .zyx1029_mini .swiper-slide{height:190px}
+
+  /* slide 里的图片：铺满整格（object-fit:cover 等比裁切不变形）；
+     pointer-events:none 让拖动事件落到轮播层而非图片上，拖起来更顺。
+     🎤 答辩预测：图片为什么要 pointer-events:none？——否则拖动会被 <img> 截住，
+        事件落不到轮播层，拖起来不跟手 */
+  .zyx1029_mini .swiper-slide img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+
+  /* ===== 六、提示词弹窗窗口 ===== */
+  /* 右下角悬浮按钮：fixed 钉在视口右下，z-index 盖在内容之上 */
+  .zyx1029_pbtn{position:fixed;right:22px;bottom:22px;z-index:99;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:bold;color:#fff;background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:999px;padding:12px 22px;box-shadow:0 10px 24px rgba(15,43,91,.35);transition:transform .2s,box-shadow .2s}
+  .zyx1029_pbtn:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,43,91,.45)}
+  /* 弹窗遮罩：默认隐藏，加 .zyx1029_show 后 flex 居中弹出内容盒 */
+  .zyx1029_mask{display:none;position:fixed;inset:0;z-index:100;background:rgba(15,23,42,.55);backdrop-filter:blur(3px)}
+  .zyx1029_mask.zyx1029_show{display:flex;align-items:center;justify-content:center;padding:20px}
+  /* 弹窗内容盒：限宽 680px、最高 82vh 内部滚动 */
+  .zyx1029_mbox{width:min(680px,100%);max-height:82vh;overflow:auto;background:#fff;border-radius:18px;padding:26px 28px;box-shadow:0 24px 60px rgba(2,8,23,.35);position:relative}
+  .zyx1029_mbox h3{font-size:17px;color:#0f2b5b;margin-bottom:14px;padding-left:12px;border-left:4px solid #1d5bbf}
+  .zyx1029_mtag{display:inline-block;font-size:12px;font-weight:bold;border-radius:999px;padding:3px 12px;margin-bottom:8px;background:#eef2ff;color:#1d4ed8;border:1px solid #c7d8f8}
+  .zyx1029_mquote{background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #f59e0b;border-radius:10px;padding:12px 15px;font-size:13.5px;color:#475569;line-height:2;margin-bottom:14px}
+  .zyx1029_mquote b{color:#0f2b5b}
+  .zyx1029_mnote{font-size:12.5px;color:#94a3b8;margin:4px 0 10px}
+  /* JS 核心代码块：深色终端风，white-space:pre 保留缩进、超宽横向滚动，最高 40vh 内部滚动 */
+  .zyx1029_mcode{max-height:40vh;overflow:auto;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;font-family:Consolas,monospace;font-size:12px;line-height:1.8;white-space:pre;margin-bottom:14px}
+
+  /* ===== 可折叠代码 / 提示词日志：默认收起，只露一行按钮 ===== */
+  .zyx1029_fold{margin-top:6px}
+  .zyx1029_foldbtn{display:block;width:100%;text-align:left;border:1px solid #dbe4f3;background:#f5f8ff;color:#1d4ed8;font-family:inherit;font-size:13px;font-weight:bold;border-radius:10px;padding:10px 14px;cursor:pointer;transition:background .2s,border-color .2s}
+  .zyx1029_foldbtn:hover{background:#eaf1ff;border-color:#bfd3f7}
+  .zyx1029_foldpanel{display:none;margin-top:10px}
+  .zyx1029_foldpanel.zyx1029_open{display:block}
+  .zyx1029_mlinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .zyx1029_mlinks a{font-size:13px;font-weight:bold;text-decoration:none;color:#0f2b5b;background:#f1f5f9;border:1px solid #dbe4ff;border-radius:999px;padding:8px 16px;transition:transform .2s,box-shadow .2s}
+  .zyx1029_mlinks a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+  .zyx1029_mclose{position:absolute;top:12px;right:14px;width:34px;height:34px;border:none;border-radius:50%;background:#f1f5f9;color:#475569;font-size:17px;cursor:pointer;transition:background .2s}
+  .zyx1029_mclose:hover{background:#e2e8f0}
+
+  /* ===== 七、返回链接与页脚 ===== */
+
+  /* 返回链接区：整行文字居中 */
+  .zyx1029_back{text-align:center;margin-top:30px}
+
+  /* 链接按钮：inline-block 才能同时设置 padding；
+     999px 圆角 = 胶囊形；transition 让 hover 的上浮有动画 */
+  .zyx1029_back a{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14.5px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;margin:0 6px;transition:transform .2s,box-shadow .2s}
+
+  /* 链接悬停：上浮 2px + 投影，和卡片 hover 同一套交互语言 */
+  .zyx1029_back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+
+  /* 页脚版权行：居中、灰色小字 */
+  footer{text-align:center;margin-top:30px;color:#9ca3af;font-size:13px;line-height:2}
+</style>
+</head>
+<body>
+<div class="zyx1029_wrap">
+
+  <div class="zyx1029_head">
+    <h1>任务二 · Swiper creative effect <b>自定义出场姿势</b></h1>
+    <p>Swiper 官方 effect 只有 6 种（<code>slide / fade / cube / coverflow / flip / cards</code>），还藏着第 7 种——<b style="color:#ffd166">creative</b>。
+    它让你用 <code>transform</code> 自己写 prev / next slide 怎么出场。下面 <b style="color:#ffd166">7 个框</b>：前 6 个是<b style="color:#ffd166">课堂上讲的 6 种效果</b>，第 7 个是用 creative 自学的<b style="color:#ffd166">电影墙</b>，
+    <b style="color:#ffd166">按住图片左右拖动</b>就能看到对应的切换动画。</p>
+  </div>
+
+  <!-- 🟥 老师圈画必问标注条：内容来自老师投影红笔圈画照片 -->
+  <div class="zyx1029_rednote">🟥 老师圈画 · 必问：「<b>prev / next 的 transform 各控制什么？</b>」——prev 控制"正在离开"的上一张怎么退场，next 控制"正在进场"的下一张怎么登场（详见配方表上方答辩预测注释）。</div>
+
+  <div class="zyx1029_req">
+    <b>📋 任务原文：</b>课堂上只讲了 6 种 effect，Swiper 其实还有第 7 种——creative（自定义变换），本课未讲解。
+    请打开官方示例 <code>swiper/demo/257-effect-creative.html</code>，配合 AI 读懂 creativeEffect 的 transform 写法，
+    为演示四新增第 7 个按钮「creative 电影墙」。效果要求：<b>上一张缩小左移并带角度、下一张放大右移进场</b>（参数自定，但要"像电影选片墙"）；
+    实现后须向 AI 追问并用自己的话写下：<b>prev / next 的 transform 各控制什么？</b><br>
+    <b>🎤 答辩抽问：</b>transform 里的百分号是相对谁的？改一个数值让卡片转 20 度试试？　<b>考核点：</b>用 AI 自学未讲过的 API + 官方示例阅读能力（计入课堂分）。
+  </div>
+
+  <!-- ===== 7 个效果配方卡片网格 =====
+       整体结构：外层 .zyx1029_grid 是 CSS Grid 容器，auto-fit + minmax(280px,1fr) 让卡片自动换行排满一行；
+       每张卡片 .zyx1029_card 固定三部分——标题行（名称 + 灰色代码牌）、迷你轮播（.swiper > .swiper-wrapper > 3 张 .swiper-slide 图片）。
+       卡片轮播的 id 命名为 zyx1029C1 ~ zyx1029C7，与下方 JS 里 zyx1029_recipes 配方表的下标一一对应。 -->
+  <div class="zyx1029_round">── 实机演示 · 6 种课堂效果 + 第 7 种 creative 电影墙（按住拖动切换）──</div>
+  <div class="zyx1029_grid">
+
+    <!-- 卡片 1：slide 效果 —— Swiper 默认效果，slide 跟随手指水平平移 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>① slide · 平移切换</h3><code class="zyx1029_chip">effect: 'slide'</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C1"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+      </div></div>
+    </div>
+
+    <!-- 卡片 2：fade 效果 —— 当前 slide 淡出、下一张原地淡入，无位移 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>② fade · 淡入淡出</h3><code class="zyx1029_chip">effect: 'fade'</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C2"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+      </div></div>
+    </div>
+
+    <!-- 卡片 3：cube 效果 —— 整个轮播变成立方体，绕 Y 轴旋转翻面 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>③ cube · 3D 立方体</h3><code class="zyx1029_chip">effect: 'cube'</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C3"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+      </div></div>
+    </div>
+
+    <!-- 卡片 4：coverflow 效果 —— 中间清晰、两侧缩小带透视偏转，像苹果音乐封面墙 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>④ coverflow · 3D 流水展</h3><code class="zyx1029_chip">effect: 'coverflow'</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C4"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+      </div></div>
+    </div>
+
+    <!-- 卡片 5：flip 效果 —— slide 沿自身边缘 3D 翻转 180 度露出下一张 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>⑤ flip · 3D 翻牌</h3><code class="zyx1029_chip">effect: 'flip'</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C5"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+      </div></div>
+    </div>
+
+    <!-- 卡片 6：cards 效果 —— 多张卡片像扑克牌一样堆叠，切走时顶层滑出 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>⑥ cards · 卡片堆叠</h3><code class="zyx1029_chip">effect: 'cards'</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C6"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+      </div></div>
+    </div>
+
+    <!-- 卡片 7：creative 效果（第 7 种，课堂未讲）——
+         不属于内置效果的"特效模板"，而是开放接口：自己在 creativeEffect 里写
+         prev / next 两张 slide 的 transform（translate 位移 + rotate 旋转 + scale 缩放），
+         Swiper 在切换过程中按进度百分比插值，实现任意自定义出场姿势。
+         这里按任务要求配成"电影选片墙"：上一张缩小沉到左后方，下一张从右侧放大进场。 -->
+    <div class="zyx1029_card">
+      <div class="zyx1029_card_head"><h3>⑦ creative · 自定义电影墙（第 7 种）</h3><code class="zyx1029_chip">effect: 'creative'
+prev/next transform</code></div>
+      <div class="swiper zyx1029_mini" id="zyx1029C7"><div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_c.jpg" alt="麦田夕阳"></div>
+        <div class="swiper-slide"><img src="swiper-imgs/zyx1029_creative_d.jpg" alt="雪山湖泊"></div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <div class="zyx1029_back">
+    <a href="index.html">← 返回首页 index.html</a>
+    <a href="swiper-task.html">← 返回 Swiper 任务页</a>
+  </div>
+
+  <footer>任务二 · creative 仿写 · Swiper AI 协作进阶 · 高级网页设计 · 赵雨欣 24001011029</footer>
+
+  <!-- ===== 提示词弹窗窗口：点右下角按钮弹出，窗内放本任务（任务二）的提示词原文 ===== -->
+  <button class="zyx1029_pbtn" id="zyx1029Pbtn" type="button">📜 查看本任务提示词</button>
+  <div class="zyx1029_mask" id="zyx1029Mask">
+    <div class="zyx1029_mbox" role="dialog" aria-label="任务二提示词">
+      <button class="zyx1029_mclose" id="zyx1029Mclose" type="button" aria-label="关闭">✕</button>
+      <h3>任务二 · 我的提示词</h3>
+      <span class="zyx1029_mtag">任务二 · creative 仿写</span>
+      <div class="zyx1029_mquote">任务二·creative 仿写：课堂没讲，AI 教你。课堂上只讲了 6 种 effect，Swiper 其实还有第 7 种——<b>creative（自定义变换）</b>，本课未讲解。请打开官方示例 swiper/demo/257-effect-creative.html，配合 AI 读懂 creativeEffect 的 transform 写法，为演示四新增第 7 个按钮「creative 电影墙」。效果要求：<b>上一张缩小左移并带角度、下一张放大右移进场</b>（参数自定，但要"像电影选片墙"）；实现后须向 AI 追问并用自己的话写下：<b>prev / next 的 transform 各控制什么？</b></div>
+      <span class="zyx1029_mtag">任务二 · JS 核心代码</span>
+      <div class="zyx1029_fold">
+        <button class="zyx1029_foldbtn" type="button" aria-expanded="false" data-label="任务二 JS 核心代码">▸ 展开任务二 JS 核心代码</button>
+        <div class="zyx1029_foldpanel">
+      <pre class="zyx1029_mcode">// 配方表：前 6 项为课堂 6 种 effect，第 7 项为 creative 电影墙（AI 自学）
+var zyx1029_recipes = [
+  { id: '#zyx1029C1', effect: 'slide' },     // ① 平移：默认效果，slide 跟手水平滑动
+  { id: '#zyx1029C2', effect: 'fade' },      // ② 淡入淡出：原地透明度渐变，无位移
+  { id: '#zyx1029C3', effect: 'cube' },      // ③ 立方体：绕 Y 轴 3D 旋转翻面
+  { id: '#zyx1029C4', effect: 'coverflow' }, // ④ 封面流：中间清晰、两侧缩小带透视
+  { id: '#zyx1029C5', effect: 'flip' },      // ⑤ 翻牌：沿边缘 3D 翻转 180 度
+  { id: '#zyx1029C6', effect: 'cards' },     // ⑥ 卡片堆叠：像扑克牌叠放、顶层滑出
+  { id: '#zyx1029C7', effect: 'creative',    // ⑦ 自定义电影墙（第 7 种，课堂未讲，AI 自学）
+    creativeEffect: {
+      prev: { translate: ['-80%', '-10%', -300], rotate: [0, 0, -20], scale: 0.7 },
+      next: { translate: ['110%', '10%', 0],     rotate: [0, 0, 10],  scale: 1.2 }
+    } }
+];
+
+// 遍历配方表逐个初始化：loop 循环 + 600ms 动画 + 配方表的 effect / creativeEffect
+// 前 6 项的 creativeEffect 为 undefined，Swiper 自动忽略——一段代码通吃 7 种效果
+zyx1029_recipes.forEach(function (zyx1029R) {
+  new Swiper(zyx1029R.id, {
+    loop: true,
+    speed: 600,
+    effect: zyx1029R.effect,
+    creativeEffect: zyx1029R.creativeEffect
+  });
+});</pre>
+        </div>
+      </div>
+      <p class="zyx1029_mnote">点击下方可跳转到其他任务页，并自动打开那里的提示词窗口：</p>
+      <div class="zyx1029_mlinks">
+        <a href="zyx1029_task1_cube.html#zyx1029Prompt">→ 任务一 · 提示词工程</a>
+        <a href="zyx1029_task3_keyboard.html#zyx1029Prompt">→ 任务三 · 键盘控制</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════
+  // 📌 任务二 · JS 代码区（从这里开始，到脚本结束）
+  //    核心代码：下方「配方表 zyx1029_recipes」与「forEach 遍历初始化」
+  //    ——7 种效果全靠这两段；弹窗里的复制品仅供展示，真正生效的是这里
+  // ═══════════════════════════════════════════════════════
+
+  // 功能名称及简介：zyx1029_recipes —— 前 6 项为课堂上讲的 6 种 effect，
+  //                  第 7 项为自学的 creative 电影墙（prev/next transform 组合，与卡片灰色代码牌一一对应）
+  // 作者：赵雨欣  建立时间：2026-11-10  使用模型：GLM-5.3-FlashX
+  //
+  // 讲解：这是一张"配方表"，把每个卡片轮播的 id 和它要用的 effect 配对存放。
+  // 前 6 项只写 effect 名即可（Swiper 内置模板自动处理动画）；
+  // 第 7 项 creative 是开放接口，必须自己给 prev / next 各写一组 transform：
+  //   · prev  → 「上一张」slide（即将被切走的、离开视口的图）的出场姿势
+  //   · next  → 「下一张」slide（即将进场接管画面）的出场姿势
+  // 每组 transform 支持三个属性：
+  //   · translate: [x, y, z] → 位移；字符串百分比相对【容器宽度】（x 用宽度、y 用高度），
+  //                            数字则按像素；z 是沿视线方向的透视深度（负数 = 向屏幕深处退）
+  //   · rotate: [x, y, z]    → 绕三条轴旋转的度数，单位 deg
+  //   · scale: 数字          → 缩放倍数，1 为原大，0.7 即缩小到七成
+  // 电影墙参数解读：
+  //   prev: translate ['-80%','-10%',-300] → 上一张向左移出容器 80% 宽、略微上浮，并退后 300px；
+  //         rotate [0,0,-20] → 绕 z 轴左倾 20 度，产生"甩到一边"的角度感；
+  //         scale 0.7        → 缩到七成，像电影海报被撤下选片墙
+  //   next: translate ['110%','10%',0]     → 下一张从容器右侧 110% 处（画面外）进场，略带下沉；
+  //         rotate [0,0,10]  → 绕 z 轴右倾 10 度进场后摆正；
+  //         scale 1.2        → 以 1.2 倍略放大进场，落位后恢复原大，形成"凑近"的冲击感
+  //
+  // ===== 🎤 答辩预测问答（🟥 老师红笔圈画必问 Q2：prev/next 的 transform 各控制什么；其余为预测）=====
+  // Q1 creative 和前 6 种 effect 的本质区别？
+  //    → 前 6 种是 Swiper 内置"特效模板"，写个名字就有动画；creative 是开放接口，
+  //      没有预设动画，必须自己给 prev/next 写 transform，Swiper 按切换进度插值
+  // Q2 prev / next 的 transform 分别控制什么？
+  //    → prev 控制"正在离开"的上一张怎么退场；next 控制"正在进场"的下一张怎么登场
+  // Q3 transform 里的百分号相对谁？（任务原文指定答辩抽问）
+  //    → 相对轮播容器：x 用容器宽度、y 用容器高度，不是 slide 自身；数字按像素，
+  //      z 是透视深度（负数往屏幕深处退）
+  // Q4 改一个数值让卡片转 20 度？
+  //    → 把 prev.rotate 的第三个值（z 轴）从 -20 改成 20，卡片即向右转 20 度
+  // Q5 电影墙参数怎么解读？
+  //    → prev：左移出 80% 宽、退后 300px、左倾 20°、缩到 0.7 倍，像海报被撤下选片墙；
+  //      next：从右侧 110% 画面外进场、右倾 10°、1.2 倍放大，像凑近观众
+  var zyx1029_recipes = [
+    { id: '#zyx1029C1', effect: 'slide' },     // ① 平移：默认效果，slide 跟手水平滑动
+    { id: '#zyx1029C2', effect: 'fade' },      // ② 淡入淡出：原地透明度渐变，无位移
+    { id: '#zyx1029C3', effect: 'cube' },      // ③ 立方体：绕 Y 轴 3D 旋转翻面
+    { id: '#zyx1029C4', effect: 'coverflow' }, // ④ 封面流：中间清晰、两侧缩小带透视
+    { id: '#zyx1029C5', effect: 'flip' },      // ⑤ 翻牌：沿边缘 3D 翻转 180 度
+    { id: '#zyx1029C6', effect: 'cards' },     // ⑥ 卡片堆叠：像扑克牌叠放、顶层滑出
+    { id: '#zyx1029C7', effect: 'creative',    // ⑦ 自定义电影墙（第 7 种，课堂未讲，AI 自学）
+      creativeEffect: {
+        prev: { translate: ['-80%', '-10%', -300], rotate: [0, 0, -20], scale: 0.7 },
+        next: { translate: ['110%', '10%', 0],     rotate: [0, 0, 10],  scale: 1.2 }
+      } }
+  ];
+
+  // 功能名称及简介：zyx1029_initCreativeCards —— 遍历配方表，把每个卡片轮播初始化为
+  //                  对应 effect 的可拖动实例（loop 循环，无自动播放，专心看切换动画）
+  // 作者：赵雨欣  建立时间：2026-11-10  使用模型：GLM-5.3-FlashX
+  //
+  // 讲解：用 forEach 逐条取出配方，给每个 id new 一个 Swiper 实例：
+  //   · loop: true        → 无缝循环：最后一张翻到下一张会接回第一张，可一直往同方向拖
+  //                         🎤 答辩预测：只有 3 张图为什么能一直拖？——Swiper 在首尾克隆 slide
+  //                         （第一张接到末尾、最后一张接到开头），拖到克隆位瞬间拉回真身
+  //   · speed: 600        → 每次切换动画时长 600 毫秒，保证 7 张卡片的动画节奏一致
+  //                         🎤 答辩预测：speed 是什么？——单次切换动画的时长（毫秒），不是自动播放间隔
+  //   · effect            → 从配方表取出该卡的效果名（slide/fade/.../creative）
+  //   · creativeEffect    → 只有第 7 项有值，其余项为 undefined，Swiper 会自动忽略，
+  //                         所以一套初始化代码可以同时服务 7 种效果，无需写 7 遍
+  // 🎤 答辩预测：为什么 7 个轮播只用一段 forEach？——配方表把 id 和 effect 配对存放；
+  //    前 6 项的 creativeEffect 是 undefined 被 Swiper 忽略，一段代码通吃 7 种效果
+  zyx1029_recipes.forEach(function (zyx1029R) {
+    new Swiper(zyx1029R.id, {
+      loop: true,
+      speed: 600,
+      effect: zyx1029R.effect,
+      creativeEffect: zyx1029R.creativeEffect
+    });
+  });
+
+  // 功能名称及简介：zyx1029_openPrompt / zyx1029_closePrompt —— 打开/关闭"本任务提示词"弹窗窗口；
+  //                  绑定按钮点击、右上角关闭、点遮罩空白处关闭三种交互；
+  //                  若 URL 带 #zyx1029Prompt（从其他任务页跳转而来）则自动弹开窗口，实现跨页直达
+  // 作者：赵雨欣  建立时间：2026-11-12  使用模型：GLM-5.3-FlashX
+  function zyx1029_openPrompt() {
+    document.getElementById('zyx1029Mask').classList.add('zyx1029_show');
+  }
+  function zyx1029_closePrompt() {
+    document.getElementById('zyx1029Mask').classList.remove('zyx1029_show');
+  }
+  // 点右下角按钮 → 打开窗口
+  document.getElementById('zyx1029Pbtn').addEventListener('click', zyx1029_openPrompt);
+  // 点右上角 ✕ → 关闭窗口
+  document.getElementById('zyx1029Mclose').addEventListener('click', zyx1029_closePrompt);
+  // 点半透明遮罩空白处（事件目标恰好是遮罩本身）→ 关闭窗口，点内容盒不关
+  document.getElementById('zyx1029Mask').addEventListener('click', function (zyx1029E) {
+    if (zyx1029E.target === this) zyx1029_closePrompt();
+  });
+  // 跨页跳转直达：地址栏带 #zyx1029Prompt 时，页面加载完自动弹出提示词窗口
+  if (window.location.hash === '#zyx1029Prompt') zyx1029_openPrompt();
+
+  // 功能名称及简介：zyx1029_toggleFold —— 折叠/展开提示词或核心代码块；
+  //                  切换 aria-expanded 与面板上的 zyx1029_open 类，
+  //                  并按 data-label 同步按钮文案（▸ 展开 / ▾ 收起）
+  // 作者：赵雨欣  建立时间：2026-11-24  使用模型：DeepSeek-V4.1-Flash
+  document.addEventListener('click', function (zyx1029E) {
+    var zyx1029Btn = zyx1029E.target.closest('.zyx1029_foldbtn');
+    if (!zyx1029Btn) return;
+    var zyx1029Panel = zyx1029Btn.parentNode.querySelector('.zyx1029_foldpanel');
+    var zyx1029Open = zyx1029Panel.classList.toggle('zyx1029_open');
+    zyx1029Btn.setAttribute('aria-expanded', zyx1029Open ? 'true' : 'false');
+    zyx1029Btn.textContent = (zyx1029Open ? '▾ 收起' : '▸ 展开') + (zyx1029Btn.getAttribute('data-label') || '');
+  });
+</script>
+</body>
+</html>

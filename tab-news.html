@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+  文件名称：tab-news.html
+  作者：赵雨欣
+  建立时间：2026-11-02 13:40:56
+  使用模型：GLM-5.3-Flash
+  功能名称及简介：新闻 Tab 选项卡页面 —— 展示"国内新闻 / 省内新闻 / 国际新闻 /
+                  最热新闻"四个选项卡，国内新闻为默认选中项。
+                  JS 逻辑外部引用 js/zyx1029_tab.js（可复用选项卡组件），
+                  通过事件监听实现点击切换，切换前先清除所有选项卡的选中状态。
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新闻 Tab 选项卡 - 赵雨欣 24001011029</title>
+  <style>
+    /* 页面基础样式 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: linear-gradient(135deg, #eef2f7 0%, #dfe9f3 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px;
+    }
+    .zyx1029_page-title {
+      color: #1f2d3d;
+      font-size: 26px;
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+    .zyx1029_back-home {
+      color: #3478f6;
+      text-decoration: none;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .zyx1029_back-home:hover { text-decoration: underline; }
+
+    /* 选项卡容器 */
+    .zyx1029_tab-box {
+      width: 100%;
+      max-width: 720px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(31, 45, 61, 0.10);
+      overflow: hidden;
+    }
+    /* 选项卡按钮行 */
+    .zyx1029_tabs {
+      display: flex;
+      background: #f5f7fa;
+      border-bottom: 1px solid #e4e9f0;
+    }
+    .zyx1029_tab-item {
+      flex: 1;
+      padding: 14px 0;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      color: #5a6b7f;
+      cursor: pointer;
+      transition: color .2s, background .2s, box-shadow .2s;
+      position: relative;
+    }
+    .zyx1029_tab-item:hover { color: #3478f6; }
+    /* 选中状态：高亮 + 底部指示条 */
+    .zyx1029_tab-item.zyx1029_active {
+      color: #3478f6;
+      font-weight: bold;
+      background: #ffffff;
+    }
+    .zyx1029_tab-item.zyx1029_active::after {
+      content: "";
+      position: absolute;
+      left: 25%;
+      bottom: 0;
+      width: 50%;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: #3478f6;
+    }
+    /* 内容面板：默认隐藏，选中时显示 */
+    .zyx1029_tab-panel { display: none; padding: 20px 24px; }
+    .zyx1029_tab-panel.zyx1029_active { display: block; animation: zyx1029_fadein .35s ease; }
+    @keyframes zyx1029_fadein {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    /* 新闻列表 */
+    .zyx1029_news-list { list-style: none; }
+    .zyx1029_news-list li {
+      padding: 10px 4px;
+      border-bottom: 1px dashed #e4e9f0;
+      color: #3b4a5c;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .zyx1029_news-list li:last-child { border-bottom: none; }
+    .zyx1029_news-list li span {
+      color: #98a6b5;
+      font-size: 13px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <a class="zyx1029_back-home" href="index.html">← 返回首页 index.html</a>
+  <h1 class="zyx1029_page-title">新闻中心</h1>
+
+  <div class="zyx1029_tab-box">
+    <!-- 选项卡按钮：国内新闻为默认选中（zyx1029_active） -->
+    <div class="zyx1029_tabs">
+      <button class="zyx1029_tab-item zyx1029_active" data-tab="zyx1029_panel-domestic">国内新闻</button>
+      <button class="zyx1029_tab-item" data-tab="zyx1029_panel-province">省内新闻</button>
+      <button class="zyx1029_tab-item" data-tab="zyx1029_panel-world">国际新闻</button>
+      <button class="zyx1029_tab-item" data-tab="zyx1029_panel-hot">最热新闻</button>
+    </div>
+
+    <!-- 国内新闻（默认显示） -->
+    <div class="zyx1029_tab-panel zyx1029_active" id="zyx1029_panel-domestic">
+      <ul class="zyx1029_news-list">
+        <li><span>11-02</span>全国秋粮收购全面展开，市场化收购资金有保障</li>
+        <li><span>11-02</span>新一轮冷空气将影响中东部地区，局地降温可达 10℃</li>
+        <li><span>11-01</span>多项民生新规今起施行，涉及医保、养老等领域</li>
+        <li><span>11-01</span>国产大飞机新增多条商业航线，覆盖西部主要城市</li>
+      </ul>
+    </div>
+
+    <!-- 省内新闻 -->
+    <div class="zyx1029_tab-panel" id="zyx1029_panel-province">
+      <ul class="zyx1029_news-list">
+        <li><span>11-02</span>省重点实验室新增三家，聚焦人工智能与生物医药</li>
+        <li><span>11-01</span>全省高校创新创业大赛落幕，多支队伍获国赛资格</li>
+        <li><span>10-31</span>地铁新线路进入空载试运行阶段，预计年底通车</li>
+        <li><span>10-30</span>省内多地推出人才引进新政，住房补贴力度加大</li>
+      </ul>
+    </div>
+
+    <!-- 国际新闻 -->
+    <div class="zyx1029_tab-panel" id="zyx1029_panel-world">
+      <ul class="zyx1029_news-list">
+        <li><span>11-02</span>多国代表呼吁加强数字经济领域国际合作</li>
+        <li><span>11-01</span>全球气候大会筹备会议召开，各方讨论减排新目标</li>
+        <li><span>10-31</span>国际航天合作项目取得新进展，联合任务进入倒计时</li>
+        <li><span>10-30</span>跨国高铁合作项目签署备忘录，建设周期逐步明确</li>
+      </ul>
+    </div>
+
+    <!-- 最热新闻 -->
+    <div class="zyx1029_tab-panel" id="zyx1029_panel-hot">
+      <ul class="zyx1029_news-list">
+        <li><span>热</span>全国大学生程序设计竞赛报名人数创历史新高</li>
+        <li><span>热</span>新型储能技术取得突破，充放电效率大幅提升</li>
+        <li><span>热</span>多地文旅市场持续升温，冬季旅游预订量上涨</li>
+        <li><span>热</span>国产开源社区活跃度跃居全球前列</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 外部引用可复用选项卡组件 -->
+  <script src="js/zyx1029_tab.js"></script>
+  <script>
+    /*
+      功能名称及简介：页面初始化 —— 对 .zyx1029_tabs 容器调用可复用组件的初始化函数。
+      作者：赵雨欣  建立时间：2026-11-02  使用模型：GLM-5.3-Flash
+    */
+    zyx1029_initTabs(".zyx1029_tabs");
+  </script>
+</body>
+</html>

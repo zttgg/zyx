@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--
+  文件名称：zyx1029_poems.html
+  作者：赵雨欣
+  建立时间：2026-11-12 00:30:00
+  使用模型：GLM-5.3-Flash
+  功能名称及简介：上图下文结构页面 —— 图片与文字不是写死在 HTML 里，而是通过本地
+                  Node 服务器（db/server.js，端口 3004）读取 db/db.json 的 poems 数据
+                  （pic 图片 / title 标题 / content 内容），用 fetch 拉取后动态渲染成
+                  上图下文的卡片列表。启动方式：先在 db 目录执行 node server.js，
+                  再打开本页面。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上图下文 · 诗词卡片 · 赵雨欣 24001011029</title>
+<style>
+  /* ===== 一、页面基础与全局重置 ===== */
+  /* 通配符重置：清零默认 margin/padding；border-box 让宽度计算包含 padding+border */
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  /* 页面整体：微软雅黑/苹方字体栈、浅灰蓝底、深灰字、1.7 倍行距 */
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f8fc;color:#1f2937;line-height:1.7}
+
+  /* 内容总容器：限宽 1000px + margin auto 水平居中 + 上下留白 */
+  .zyx1029_wrap{max-width:1000px;margin:0 auto;padding:40px 20px 60px}
+
+  /* ===== 二、蓝色头部 ===== */
+  /* 头部横幅：135 度深蓝渐变 + 大圆角 + 投影（与前几个任务页同一视觉体系） */
+  .zyx1029_head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:20px;padding:32px 36px;color:#fff;margin-bottom:26px;box-shadow:0 12px 30px rgba(15,43,91,.3)}
+  .zyx1029_head h1{font-size:26px;letter-spacing:1px;line-height:1.5}
+  .zyx1029_head h1 b{color:#ffd166}
+  .zyx1029_head p{margin-top:10px;font-size:14px;color:#d9e3f5;line-height:2}
+  .zyx1029_head code{background:rgba(255,255,255,.14);padding:1px 7px;border-radius:4px;font-family:Consolas,monospace;font-size:13px}
+
+  /* ===== 三、上图下文卡片网格 ===== */
+  /* 网格容器：auto-fit + minmax 响应式，宽屏多列、窄屏换行 */
+  .zyx1029_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+
+  /* 单张卡片：白底圆角投影；transition 配合 :hover 上浮 */
+  .zyx1029_card{background:#fff;border:1px solid #e8ecf5;border-radius:16px;overflow:hidden;box-shadow:0 4px 14px rgba(31,41,55,.06);transition:transform .25s,box-shadow .25s}
+  .zyx1029_card:hover{transform:translateY(-6px);box-shadow:0 16px 32px rgba(15,43,91,.16)}
+
+  /* 【上：图】图片区固定高 210px，object-fit:cover 等比裁切不变形；
+     referrerpolicy 见 HTML 注释——Gitee 图床开防盗链，须不携带 Referer 才能加载 */
+  .zyx1029_card img{width:100%;height:210px;object-fit:cover;display:block}
+
+  /* 【下：文】文字区：内边距 + 标题 + 内容 */
+  .zyx1029_body{padding:16px 18px 20px}
+  .zyx1029_body h3{font-size:17px;color:#0f2b5b;letter-spacing:1px}
+  .zyx1029_body p{margin-top:8px;font-size:13.5px;color:#64748b;line-height:2}
+
+  /* ===== 四、加载状态与错误提示 ===== */
+  /* 加载/报错占位条：居中灰字；报错时 JS 会换成黄色提示卡 */
+  .zyx1029_tip{text-align:center;font-size:14px;color:#94a3b8;padding:40px 0;grid-column:1/-1}
+
+  /* ===== 五、返回链接与页脚 ===== */
+  .zyx1029_back{text-align:center;margin-top:32px}
+  .zyx1029_back a{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14.5px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;margin:0 6px;transition:transform .2s,box-shadow .2s}
+  .zyx1029_back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+
+  footer{text-align:center;margin-top:30px;color:#9ca3af;font-size:13px;line-height:2}
+</style>
+</head>
+<body>
+<div class="zyx1029_wrap">
+
+  <div class="zyx1029_head">
+    <h1>上图下文 · <b>诗词卡片</b>（数据来自本地服务器）</h1>
+    <p>本页图片与文字通过 <code>fetch</code> 向本地数据服务器请求：先在 <code>db</code> 目录执行
+    <code>node server.js</code> 启动服务器（端口 <code>3004</code>），页面再访问
+    <code>http://localhost:3004/poems</code> 拿到 db.json 里的 poems 数据（pic 图片 / title 标题 / content 内容），
+    动态渲染成下面的上图下文卡片。</p>
+  </div>
+
+  <!-- 卡片容器：JS 会把服务器返回的 poems 渲染成这里的一张张上图下文卡片 -->
+  <div class="zyx1029_grid" id="zyx1029Grid">
+    <p class="zyx1029_tip">正在加载数据……（若长时间无响应，请先在 db 目录执行 node server.js 启动服务器）</p>
+  </div>
+
+  <div class="zyx1029_back">
+    <a href="index.html">← 返回首页 index.html</a>
+  </div>
+
+  <footer>上图下文 · 本地数据服务器 3004 · 高级网页设计 · 赵雨欣 24001011029</footer>
+</div>
+
+<script>
+  // 功能名称及简介：zyx1029_renderPoems —— 把服务器返回的 poems 数组渲染成上图下文卡片：
+  //                  每条数据生成一张卡片——上部分 <img> 显示 pic 图片，下部分
+  //                  <h3> 显示 title 标题、<p> 显示 content 内容，最后一次性插入网格容器
+  // 作者：赵雨欣  建立时间：2026-11-12  使用模型：GLM-5.3-Flash
+  function zyx1029_renderPoems(zyx1029List) {
+    var zyx1029Grid = document.getElementById('zyx1029Grid');
+    // 先清空容器里的"正在加载"占位文字，再用 map 拼出全部卡片 HTML 后一次插入
+    // referrerpolicy="no-referrer"：Gitee 图床有防盗链，带 localhost Referer 会被 403 拒绝，
+    // 不发送 Referer 即可正常加载图片
+    zyx1029Grid.innerHTML = zyx1029List.map(function (zyx1029Item) {
+      return '<div class="zyx1029_card">'
+        + '<img src="' + zyx1029Item.pic + '" alt="' + zyx1029Item.title + '" referrerpolicy="no-referrer">'
+        + '<div class="zyx1029_body">'
+        + '<h3>' + zyx1029Item.title + '</h3>'
+        + '<p>' + zyx1029Item.content + '</p>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // 功能名称及简介：zyx1029_loadPoems —— 页面加载后向本地服务器请求数据：
+  //                  fetch GET http://localhost:3004/poems → 解析 JSON → 调渲染函数；
+  //                  请求失败（如服务器未启动）时把容器换成黄色提示卡引导用户启动服务器
+  // 作者：赵雨欣  建立时间：2026-11-12  使用模型：GLM-5.3-Flash
+  function zyx1029_loadPoems() {
+    fetch('http://localhost:3004/poems')
+      .then(function (zyx1029Res) { return zyx1029Res.json(); })
+      .then(function (zyx1029Data) { zyx1029_renderPoems(zyx1029Data.poems); })
+      .catch(function () {
+        document.getElementById('zyx1029Grid').innerHTML =
+          '<p class="zyx1029_tip" style="background:#fffbea;border:1px solid #fde68a;border-radius:12px;color:#92400e">'
+          + '⚠️ 无法连接数据服务器。请先打开终端，在 db 文件夹执行 <b>node server.js</b> 启动服务器后刷新本页。</p>';
+      });
+  }
+
+  // 页面打开即自动加载数据
+  zyx1029_loadPoems();
+</script>
+</body>
+</html>

@@ -1092,4 +1092,336 @@ c:\Users\...\_!DOCTYPE....txt 这个是别人任务一的代码，你换颜色�
 上传到index
 （背景：把任务三、任务四的两段实机演示录屏作为 26、27 号卡片加入首页 index.html 的课堂目录，
   点击直接播放 mp4；模块计数由 25 更新为 27）
+
+## 081
+
+- 时间：2026-11-23 13:48:33（Asia/Shanghai）
+- 模型：claude-opus-6
+- 提示词内容：
+
 ```
+使用硅基流动API key创建基本AI应用:AI聊天
+Api-key：sk-lprviqoltvyixesbqatrcuywoccdhcvgqbpcvnbzhvjymuay
+```
+（背景：按课堂「AI 应用」要求，使用硅基流动 SiliconFlow 的 OpenAI 兼容接口
+  https://api.siliconflow.cn/v1/chat/completions 创建一个基本 AI 聊天网页；
+  遵循项目规则：所有 CSS 类名/id/JS 变量名以 zyx1029_ 开头、返回首页 index.html 链接、
+  文件头与 JS 函数加中文注释（作者赵雨欣 / 建立时间 / 使用模型 / 功能名称及简介））
+
+## 082
+
+- 时间：2026-11-23 13:54:57（Asia/Shanghai）
+- 模型：claude-opus-6
+- 提示词内容：
+
+```
+curl --request POST ^
+  --url https://api.siliconflow.cn/v1/chat/completions ^
+  -H "Content-Type: application/json" ^
+  -H "Authorization: Bearer sk-lprviqoltvyixesbqatrcuywoccdhcvgqbpcvnbzhvjymuay" ^
+  -d "{\"model\":\"deepseek-ai/DeepSeek-V4-Flash\",\"messages\":[{\"role\":\"system\",\"content\":\"你是一个有用的助手\"},{\"role\":\"user\",\"content\":\"你好，请介绍一下你自己\"}]}"
+```
+（背景：用户给出 SiliconFlow 控制台格式的 curl 示例，要求执行该请求；模型改为 deepseek-ai/DeepSeek-V4-Flash）
+
+```
+
+## 083
+
+- 时间：2026-11-24 02:43:47（Asia/Shanghai）
+- 模型：deepseek-flash
+- 提示词内容：
+
+```
+了解项目所有功能
+```
+（背景：只读梳理整个 24001011029赵雨欣 项目的页面、组件与功能清单，不修改任何代码）
+
+## 084
+
+- 时间：2026-11-24 02:52:51（Asia/Shanghai）
+- 模型：deepseek-flash
+- 提示词内容：
+
+```
+现在语音识别是错误的，你帮我修改正确
+```
+（背景：修复同级全栈项目 quanzhan1029 的语音识别；浏览器 MediaRecorder 录音为 webm/opus，
+  直接上送硅基流动 SenseVoice 会返回空文本，改为前端统一转 16kHz WAV 后再识别）
+
+## 085
+
+- 时间：2026-11-24 03:03:09（Asia/Shanghai）
+- 模型：deepseek-flash
+- 提示词内容：
+
+```
+不管说什么识别的都是Yeah
+```
+（背景：继续修复 quanzhan1029 语音识别；排查发现浏览器录到的是虚拟声卡的低频噪声，
+  为 chat.html / llm.html 增加麦克风选择与虚拟设备自动规避）
+
+## 086
+
+- 时间：2026-11-24 03:11:23（Asia/Shanghai）
+- 模型：deepseek-flash
+- 提示词内容：
+
+```
+还是不行，语音识别只能用七牛
+```
+（背景：把 quanzhan1029 的语音识别后端切回七牛 qwen/qwen3.8-omni-flash；实测干净中文语音
+  两个服务商都能正确识别，此前“只识别成 Yeah”源于录音中没有人生声，已加麦克风选择功能）
+
+## 087
+
+- 时间：2026-11-24 11:34:39（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+这个是我同学的代码，你也帮我在index里面新建一个，不要完全一样，需要什么图片或者信息我给你
+```
+（背景：参考同学杨婷婷的 LLM 实践演示页，为本项目新建独立的“LLM 实践操作痕迹”页面并在
+  index.html 课堂目录中新增入口卡片；四个模块对应 quanzhan1029 的 chat.html / knowledge.html /
+  vision.html / speech.html；截图由作者后续放入 img/llm/ 目录）
+
+## 088
+
+- 时间：2026-11-24 11:54:02（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+这个页面加上我的个人信息
+```
+（背景：在 zyx1029_llm_practice.html 头部增加作者信息条，含姓名、学号、课程，
+  并同步更新标题与顶部签名）
+
+## 089
+
+- 时间：2026-11-24 11:57:04（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+测试截图必须包含url，里面有接口信息包含大家的学号后三位有吗
+```
+（背景：课程要求测试截图保留浏览器地址栏；本项目接口端口 8029 中的 029 为学号后三位。
+  在截图说明下补充对应 URL，并在页面注明端口与学号的关系）
+
+## 090
+
+- 时间：2026-11-24 12:02:16（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+替换啊
+```
+（背景：用新提供的 knowledge.html 上传成功截图替换 img/llm/zyx1029_llm_kb_upload.png）
+
+## 091
+
+- 时间：2026-11-24 12:03:42（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+你帮我把index分类排序呗
+```
+（背景：index.html 课堂目录由 28 张并列卡片改为按类型分组展示，顺序与编号保持不变）
+
+## 092
+
+- 时间：2026-11-24 12:07:20（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+```
+不这么分，按照作业顺序分
+```
+（背景：index.html 课堂目录改为按作业批次分组，每 5 个编号一组：
+  01–05、06–10、11–15、16–20、21–25、26–28，标题为第一次～第六次作业）
+
+## 093
+
+- 时间：2026-11-24 12:11:06（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+这俩你不要单独列出来
+`
+（背景：任务三、任务四实机演示录屏不再作为独立卡片，改为止 22、23 卡片内的「观看录屏」入口；删除后总数由 28 变为 26）
+
+## 094
+
+- 时间：2026-11-24 12:13:27（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+按照任务一二三四排序
+`
+（背景：index.html 第五次作业内 21–24 卡片按任务一→四重排，原 24 任务一提至 21，顺延重新编号）
+
+## 095
+
+- 时间：2026-11-24 12:16:33（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+好的，把这三个页面补进目录
+`
+（背景：index.html 补入之前未收录的 zyx1029_poems.html、JS_obj_fun1029.html、zyx1029_ai_chat.html，全目录编号顺延重排为 01–29）
+
+## 096
+
+- 时间：2026-11-24 12:19:55（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+好的，删除那行引用
+`
+（背景：删除 JS_obj_fun1029.html 中指向不存在的 JS_obj_fun1029.css 的 link 引用，消除 404）
+
+## 097
+
+- 时间：2026-11-24 12:21:07（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+删掉
+`
+（背景：删除 index.html 中「JS 内置对象与函数」卡片，目录编号顺延重排为 01–28）
+
+## 098
+
+- 时间：2026-11-24 12:22:00（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+11和12 是一起的
+`
+（背景：index.html 中新闻 Tab 与影视 Tab 合并为一张卡片，提供「新闻版 / 影视版」两个入口，目录重排为 01–27）
+
+## 099
+
+- 时间：2026-11-24 12:23:31（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+删除21 22 23 24 只留25就好
+`
+（背景：index.html 删除移动端任务一~四四张卡片，只保留移动端作业·提交总览，目录重排为 01–23）
+
+## 100
+
+- 时间：2026-11-24 12:29:04（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+不要这样，不美观
+`
+（选择：提示词弹窗排版。执行：三个 Swiper 任务页的提示词弹窗改为默认收起的折叠按钮，
+  任务一超长的提示词记录全文与核心代码均默认收起，点击才展开）
+
+## 101
+
+- 时间：2026-11-24 12:33:39（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+不要这样，不美观
+`
+（排查结果：三个任务页 JS 注释里写了字面量 </script>，浏览器提前结束脚本，
+  导致后半段 JS 以纯文本铺满页面；已把注释改为「到脚本结束」，脚本恢复正常执行）
+
+## 102
+
+- 时间：2026-11-24 12:38:53（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+歪了
+`
+（排查：底部 TabBar 选中态的青色指示条定位到整条导航的 50%，没有跟着「首页」；
+  原因是 .zyx1029_tab 缺少 position:relative，已补上，iconfont-3 / iconfont-4 同步修复）
+
+## 103
+
+- 时间：2026-11-24 12:43:38（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+12 13 合并
+`
+（背景：index.html 将 Font Awesome 字体图标页与 Lucide SVG 图标页合并为一张卡片，
+  提供「字体图标版 / SVG 版」两个入口，目录重排为 01–22）
+
+## 104
+
+- 时间：2026-11-24 12:49:54（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+合并13 14
+`
+（背景：index.html 将 RemixIcon 字体版与 SVG 版两个底部导航页合并为一张卡片，
+  提供「字体版 / SVG 版」两个入口，目录重排为 01–21）
+
+## 105
+
+- 时间：2026-11-24 12:51:05（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+合并
+`
+（背景：index.html 将四张 Swiper 卡片：课堂任务、提示词工程、creative 仿写、超纲加分
+  合并为一张卡片，提供四个入口，目录重排为 01–18）
+
+## 106
+
+- 时间：2026-11-24 12:55:58（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+删除18
+`
+（背景：index.html 删除第 18 张「AI 聊天助手·硅基流动」卡片，目录重排为 01–17）
+
+## 107
+
+- 时间：2026-11-24 12:58:11（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+把index需要的东西都上传到https://github.com/zttgg/zhaoyuxin.git
+`
+（执行：在 GitHub 仓库现有内容基础上，同步课程目录所需的页面与静态资源，
+  排除 .trae / 打包 zip / 临时截图等无关目录，并把根 index.html 跳转改到课程目录页）
+
+## 108
+
+- 时间：2026-11-24 13:00:33（Asia/Shanghai）
+- 模型：DeepSeek-V4.1-Flash
+- 提示词内容：
+
+`
+把index需要的东西都上传到https://github.com/zttgg/zyx.git
+`
+（执行：改为推送到 zyx 仓库，只同步课程目录所需页面与资源，排除工具与临时目录）
